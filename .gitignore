@@ -1,0 +1,15 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/diffengine
+diffengine.so
+diffengine.dylib
+diffengine.dll
+diffengine.a
+diffengine.lib
+diffengine-test-*
+*.exe
+*.o
+*.obj
+*.lst

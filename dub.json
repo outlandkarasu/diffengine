@@ -1,0 +1,9 @@
+{
+	"authors": [
+		"outland.karasu"
+	],
+	"description": "Simple automatic differentiation library for D language.",
+	"license": "BSL-1.0",
+	"name": "diffengine",
+	"target": "sourceLibrary"
+}
