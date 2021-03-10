@@ -75,3 +75,18 @@ private:
     const(Differentiable!R) one_;
 }
 
+/**
+Create differentiate context.
+
+Params:
+    R = result type.
+    target = differentiate target.
+Returns:
+    Differentiate context.
+*/
+DiffContext!R diffContext(R)(const(Differentiable!R) target) nothrow pure
+    in (target)
+{
+    return new DiffContext!R(target);
+}
+

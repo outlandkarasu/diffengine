@@ -6,7 +6,8 @@ module diffengine.constant;
 import diffengine.differentiable :
     Differentiable,
     DiffResult,
-    DiffContext;
+    DiffContext,
+    diffContext;
 
 @safe:
 
@@ -48,8 +49,15 @@ nothrow pure unittest
 {
     import std.math : isClose;
 
+    // evaluated is zero.
     auto z = zero!real();
     assert(z().isClose(0.0));
+
+    // differentiated.
+    auto context = diffContext(z);
+    auto d = z.differentiate(context);
+    assert(d.result.isClose(0.0));
+    assert(d.diff is context.zero);
 }
 
 /**
@@ -90,8 +98,15 @@ nothrow pure unittest
 {
     import std.math : isClose;
 
+    // evaluated is zero.
     auto o = one!real();
     assert(o().isClose(1.0));
+
+    // differentiate
+    auto context = diffContext(o);
+    auto d = o.differentiate(context);
+    assert(d.result.isClose(1.0));
+    assert(d.diff is context.zero);
 }
 
 /**
@@ -138,7 +153,14 @@ nothrow pure unittest
 {
     import std.math : isClose;
 
+    // evaluated is constant value.
     auto c = constant(1.234);
     assert(c().isClose(1.234));
+
+    // differentiate
+    auto context = diffContext(c);
+    auto d = c.differentiate(context);
+    assert(d.result.isClose(1.234));
+    assert(d.diff is context.zero);
 }
 
