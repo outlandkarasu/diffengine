@@ -52,3 +52,24 @@ const(Multiply!R) mul(R)(const(Differentiable!R) lhs, const(Differentiable!R) rh
     return new const(Multiply!R)(lhs, rhs);
 }
 
+nothrow pure unittest
+{
+    import std.math : isClose;
+    import diffengine.differentiable : diffContext;
+    import diffengine.constant : constant;
+    import diffengine.parameter : param;
+
+    auto p1 = param(2.0);
+    auto p2 = param(3.0);
+    auto m = p1.mul(p2);
+    assert(m().isClose(6.0));
+
+    auto p1d = m.differentiate(p1.diffContext);
+    assert(p1d.result.isClose(6.0));
+    assert(p1d.diff().isClose(3.0));
+
+    auto p2d = m.differentiate(p2.diffContext);
+    assert(p2d.result.isClose(6.0));
+    assert(p2d.diff().isClose(2.0));
+}
+
