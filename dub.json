@@ -4,6 +4,7 @@
 	],
 	"description": "Simple automatic differentiation library for D language.",
 	"license": "BSL-1.0",
+	"dflags": ["-preview=dip25", "-preview=dip1000", "-preview=dip1008"],
 	"name": "diffengine",
 	"target": "sourceLibrary"
 }

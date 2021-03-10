@@ -3,6 +3,8 @@ Differentiable type.
 */
 module diffengine.differentiable;
 
+import diffengine.constant : zero, one;
+
 @safe:
 
 /**
@@ -10,27 +12,26 @@ Differentiable interface.
 
 Params:
     R = result type.
-    A = arugment type.
 */
-interface Differentiable(R, A)
+interface Differentiable(R)
 {
     /**
     Evaluate function.
 
-    Params:
-        argument = function argument.
     Returns;
         function result.
     */
-    R opCall(return scope A argument) const nothrow pure return scope;
+    R opCall() const nothrow pure return scope;
 
     /**
     Differentiate function.
 
+    Params:
+        context = differentiate context.
     Returns:
         Differentiate result.
     */
-    DiffResult!(R, A) differentiate(return scope DiffArgument!A argument) const nothrow pure return scope;
+    DiffResult!R differentiate(scope const(DiffContext!R) context) const nothrow pure return scope;
 }
 
 /**
@@ -38,20 +39,39 @@ Differentiable function result and differentiated function.
 
 Params:
     R = result type.
-    A = arugment type.
 */
-struct DiffResult(R, A)
+struct DiffResult(R)
 {
     R result;
-    Differentiable!(R, A) diff;
+    const(Differentiable!R) diff;
 }
 
 /**
-Differentiable function arugment.
+Differentiate context.
+
+Params:
+    R = result type.
 */
-struct DiffAugument(A)
+final class DiffContext(R)
 {
-    bool target;
-    A value;
+    this(const(Differentiable!R) target) nothrow pure scope return
+        in (target)
+    {
+        this.target_ = target;
+        this.zero_ = .zero!R();
+        this.one_ = .one!R();
+    }
+
+    @property const @nogc nothrow pure @safe scope
+    {
+        const(Differentiable!R) target() { return target_; }
+        const(Differentiable!R) zero() { return zero_; }
+        const(Differentiable!R) one() { return one_; }
+    }
+
+private:
+    const(Differentiable!R) target_;
+    const(Differentiable!R) zero_;
+    const(Differentiable!R) one_;
 }
 
