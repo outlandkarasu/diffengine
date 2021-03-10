@@ -5,6 +5,7 @@ module diffengine.parameter;
 
 import diffengine.differentiable :
     Differentiable,
+    DiffContext,
     DiffResult;
 import diffengine.constant : One, Zero;
 
@@ -16,7 +17,7 @@ Differentiable plus minus class.
 Params:
     R = result type.
 */
-immutable final class Parameter(R) : Differentiable!R
+final class Parameter(R) : Differentiable!R
 {
     this()(auto return scope ref const(R) value) nothrow pure return scope
     {
@@ -28,12 +29,38 @@ immutable final class Parameter(R) : Differentiable!R
         return value_;
     }
 
-    override DiffResult!R differentiate(scope const(Deferentiable!R) target) const nothrow pure return scope
+    override DiffResult!R differentiate(scope const(DiffContext!R) context) const nothrow pure return scope
     {
-        return DiffResult!R(value_, (target is this) ? One!R.instance : Zero!R.instance);
+        return DiffResult!R(value_, (context.target is this) ? context.one : context.zero);
     }
 
 private:
     R value_;
 }
+
+Parameter!R param(R)(auto return scope ref const(R) value) nothrow pure
+{
+    return new Parameter!R(value);
+}
+
+///
+nothrow pure unittest
+{
+    import std.math : isClose;
+    import diffengine.differentiable : diffContext;
+
+    auto p = param(1.0);
+    assert(p().isClose(1.0));
+
+    auto context = diffContext(p);
+    auto d = p.differentiate(context);
+    assert(d.result.isClose(1.0));
+    assert(d.diff is context.one);
+
+    auto p2 = param(1.1);
+    auto d2 = p2.differentiate(context);
+    assert(d2.result.isClose(1.1));
+    assert(d2.diff is context.zero);
+}
+
 
