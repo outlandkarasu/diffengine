@@ -17,7 +17,7 @@ Params:
     R = result type.
     op = operator.
 */
-final class DifferentiablePlusMinus(R, string op) : Differentiable!R
+private final class DifferentiablePlusMinus(R, string op) : Differentiable!R
 {
     static assert(op == "+" || op == "-");
 
