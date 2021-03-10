@@ -30,7 +30,7 @@ interface Differentiable(R, A)
     Returns:
         Differentiate result.
     */
-    DiffResult!R differentiate(return scope DiffArgument!A argument) const nothrow pure return scope;
+    DiffResult!(R, A) differentiate(return scope DiffArgument!A argument) const nothrow pure return scope;
 }
 
 /**
