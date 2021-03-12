@@ -29,7 +29,7 @@ private final class Multiply(R) : Differentiable!R
 
     override R opCall() const nothrow pure return scope
     {
-        return lhs_()  * rhs_();
+        return lhs_() * rhs_();
     }
 
     DiffResult!R differentiate(scope const(DiffContext!R) context) const nothrow pure return scope
