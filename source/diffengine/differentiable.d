@@ -93,3 +93,16 @@ DiffContext!R diffContext(R)(const(Differentiable!R) target) nothrow pure
     return new DiffContext!R(target);
 }
 
+nothrow pure unittest
+{
+    import std.math : isClose;
+    import diffengine.parameter : param;
+
+    auto p = param(1.0);
+    auto context = diffContext(p);
+    assert(context.target is p);
+    assert(context.zero()().isClose(0.0));
+    assert(context.one()().isClose(1.0));
+    assert(context.two()().isClose(2.0));
+}
+
