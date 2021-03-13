@@ -3,7 +3,7 @@ Differentiable type.
 */
 module diffengine.differentiable;
 
-import diffengine.constant : zero, one;
+import diffengine.constant : zero, one, two;
 
 @safe:
 
@@ -60,6 +60,7 @@ final class DiffContext(R)
         this.target_ = target;
         this.zero_ = .zero!R();
         this.one_ = .one!R();
+        this.two_ = .two!R();
     }
 
     @property const @nogc nothrow pure @safe scope
@@ -67,12 +68,14 @@ final class DiffContext(R)
         const(Differentiable!R) target() { return target_; }
         const(Differentiable!R) zero() { return zero_; }
         const(Differentiable!R) one() { return one_; }
+        const(Differentiable!R) two() { return two_; }
     }
 
 private:
     const(Differentiable!R) target_;
     const(Differentiable!R) zero_;
     const(Differentiable!R) one_;
+    const(Differentiable!R) two_;
 }
 
 /**
@@ -88,5 +91,18 @@ DiffContext!R diffContext(R)(const(Differentiable!R) target) nothrow pure
     in (target)
 {
     return new DiffContext!R(target);
+}
+
+nothrow pure unittest
+{
+    import std.math : isClose;
+    import diffengine.parameter : param;
+
+    auto p = param(1.0);
+    auto context = diffContext(p);
+    assert(context.target is p);
+    assert(context.zero()().isClose(0.0));
+    assert(context.one()().isClose(1.0));
+    assert(context.two()().isClose(2.0));
 }
 

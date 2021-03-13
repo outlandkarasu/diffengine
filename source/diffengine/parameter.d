@@ -7,7 +7,6 @@ import diffengine.differentiable :
     Differentiable,
     DiffContext,
     DiffResult;
-import diffengine.constant : One, Zero;
 
 @safe:
 

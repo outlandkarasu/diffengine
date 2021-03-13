@@ -12,23 +12,24 @@ import diffengine.differentiable :
 @safe:
 
 /**
-Differentiable Zero class.
+Differentiable static constant class.
 
 Params:
     R = result type.
+    value = constant value.
 */
-final class Zero(R) : Differentiable!R
+final class StaticConstant(R, R value) : Differentiable!R
 {
     private this() immutable @nogc nothrow pure return scope {}
 
     override R opCall() const nothrow pure return scope
     {
-        return R(0);
+        return R(value);
     }
 
     override DiffResult!R differentiate(scope const(DiffContext!R) context) const nothrow pure return scope
     {
-        return DiffResult!R(R(0), context.zero);
+        return DiffResult!R(R(value), context.zero);
     }
 }
 
@@ -38,10 +39,10 @@ Create zero constant.
 Returns:
     Zero constant.
 */
-immutable(Zero!R) zero(R)() nothrow pure
+auto zero(R)() nothrow pure
     out (r; r)
 {
-    return new immutable(Zero!R)();
+    return new immutable(StaticConstant!(R, 0))();
 }
 
 ///
@@ -61,36 +62,15 @@ nothrow pure unittest
 }
 
 /**
-Differentiable One class.
-
-Params:
-    R = result type.
-*/
-final class One(R) : Differentiable!R
-{
-    private this() immutable @nogc nothrow pure return scope {}
-
-    override R opCall() const nothrow pure return scope
-    {
-        return R(1);
-    }
-
-    override DiffResult!R differentiate(scope const(DiffContext!R) context) const nothrow pure return scope
-    {
-        return DiffResult!R(R(1), context.zero);
-    }
-}
-
-/**
 Create one constant.
 
 Returns:
     One constant.
 */
-immutable(One!R) one(R)() nothrow pure
+auto one(R)() nothrow pure
     out (r; r)
 {
-    return new immutable(One!R)();
+    return new immutable(StaticConstant!(R, 1))();
 }
 
 ///
@@ -106,6 +86,34 @@ nothrow pure unittest
     auto context = diffContext(o);
     auto d = o.differentiate(context);
     assert(d.result.isClose(1.0));
+    assert(d.diff is context.zero);
+}
+
+/**
+Create two constant.
+
+Returns:
+    Two constant.
+*/
+auto two(R)() nothrow pure
+    out (r; r)
+{
+    return new immutable(StaticConstant!(R, 2))();
+}
+
+///
+nothrow pure unittest
+{
+    import std.math : isClose;
+
+    // evaluated is two.
+    auto o = two!real();
+    assert(o().isClose(2.0));
+
+    // differentiate
+    auto context = diffContext(o);
+    auto d = o.differentiate(context);
+    assert(d.result.isClose(2.0));
     assert(d.diff is context.zero);
 }
 
