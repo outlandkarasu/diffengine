@@ -56,9 +56,8 @@ const(Division!R) div(R)(const(Differentiable!R) lhs, const(Differentiable!R) rh
     return new const(Division!R)(lhs, rhs);
 }
 
-unittest
+pure nothrow unittest
 {
-    import std.conv : to;
     import std.math : isClose;
     import diffengine.differentiable : diffContext;
     import diffengine.constant : constant;
@@ -71,7 +70,7 @@ unittest
 
     auto p1d = m.differentiate(p1.diffContext);
     assert(p1d.result.isClose(2.0/3.0));
-    assert(p1d.diff().isClose(3.0/9.0), p1d.diff().to!string);
+    assert(p1d.diff().isClose(3.0/9.0));
 
     auto p2d = m.differentiate(p2.diffContext);
     assert(p2d.result.isClose(2.0/3.0));
