@@ -18,7 +18,7 @@ Differentiable multiply class.
 Params:
     R = result type.
 */
-private final class Multiply(R) : Differentiable!R
+final class Multiply(R) : Differentiable!R
 {
     this(const(Differentiable!R) lhs, const(Differentiable!R) rhs) const @nogc nothrow pure scope
         in (lhs && rhs)
