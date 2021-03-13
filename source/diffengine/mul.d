@@ -8,7 +8,7 @@ import diffengine.differentiable :
     DiffContext,
     DiffResult;
 import diffengine.constant : constant;
-import diffengine.plus_minus : plus;
+import diffengine.add_sub : add;
 
 @safe:
 
@@ -39,7 +39,7 @@ final class Multiply(R) : Differentiable!R
         auto result = lhsResult.result * rhsResult.result;
         auto ldy = mul(lhsResult.diff, rhsResult.result.constant);
         auto rdy = mul(lhsResult.result.constant, rhsResult.diff);
-        return DiffResult!R(result, plus(ldy, rdy));
+        return DiffResult!R(result, ldy.add(rdy));
     }
 
 private:

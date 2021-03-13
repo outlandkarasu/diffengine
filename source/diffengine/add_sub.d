@@ -1,7 +1,7 @@
 /**
-Differentiable plus minus type.
+Differentiable addition and subtraction type.
 */
-module diffengine.plus_minus;
+module diffengine.add_sub;
 
 import diffengine.differentiable :
     Differentiable,
@@ -11,13 +11,13 @@ import diffengine.differentiable :
 @safe:
 
 /**
-Differentiable plus minus class.
+Differentiable add sub class.
 
 Params:
     R = result type.
     op = operator.
 */
-private final class DifferentiablePlusMinus(R, string op) : Differentiable!R
+private final class DifferentiableAddSub(R, string op) : Differentiable!R
 {
     static assert(op == "+" || op == "-");
 
@@ -38,7 +38,7 @@ private final class DifferentiablePlusMinus(R, string op) : Differentiable!R
         auto lhsResult = lhs_.differentiate(context);
         auto rhsResult = rhs_.differentiate(context);
         auto result = mixin("lhsResult.result " ~ op ~ " rhsResult.result");
-        auto dy = new const(DifferentiablePlusMinus!(R, op))(lhsResult.diff, rhsResult.diff);
+        auto dy = new const(DifferentiableAddSub!(R, op))(lhsResult.diff, rhsResult.diff);
         return DiffResult!R(result, dy);
     }
 
@@ -47,18 +47,18 @@ private:
     const(Differentiable!R) rhs_;
 }
 
-alias Plus(R) = const(DifferentiablePlusMinus!(R, "+"));
+alias Addition(R) = const(DifferentiableAddSub!(R, "+"));
 
-Plus!R plus(R)(const(Differentiable!R) lhs, const(Differentiable!R) rhs) nothrow pure
+Addition!R add(R)(const(Differentiable!R) lhs, const(Differentiable!R) rhs) nothrow pure
 {
-    return new Plus!R(lhs, rhs);
+    return new Addition!R(lhs, rhs);
 }
 
-alias Minus(R) = const(DifferentiablePlusMinus!(R, "-"));
+alias Subtraction(R) = const(DifferentiableAddSub!(R, "-"));
 
-Minus!R minus(R)(const(Differentiable!R) lhs, const(Differentiable!R) rhs) nothrow pure
+Subtraction!R sub(R)(const(Differentiable!R) lhs, const(Differentiable!R) rhs) nothrow pure
 {
-    return new Minus!R(lhs, rhs);
+    return new Subtraction!R(lhs, rhs);
 }
 
 nothrow pure unittest
@@ -70,10 +70,10 @@ nothrow pure unittest
 
     auto c1 = constant(1.0);
     auto c2 = param(2.0);
-    auto p = c1.plus(c2);
+    auto p = c1.add(c2);
     assert(p().isClose(3.0));
 
-    auto m = c1.minus(c2);
+    auto m = c1.sub(c2);
     assert(m().isClose(-1.0));
 
     auto context = diffContext(c2);

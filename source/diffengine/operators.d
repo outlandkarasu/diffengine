@@ -5,7 +5,7 @@ module diffengine.operators;
 
 import diffengine.differentiable : Differentiable;
 import diffengine.mul : Multiply, mul;
-import diffengine.plus_minus : Minus, minus, Plus, plus;
+import diffengine.add_sub : Addition, add, Subtraction, sub;
 import diffengine.div : Division, div;
 
 @safe:
@@ -25,11 +25,11 @@ mixin template DifferentiableOperators(R)
     Returns:
         add expression.
     */
-    Plus!R opBinary(string op)(const(Differentiable!R) rhs) const nothrow pure if (op == "+")
+    Addition!R opBinary(string op)(const(Differentiable!R) rhs) const nothrow pure if (op == "+")
         in (rhs)
         out (r; r)
     {
-        return this.plus(rhs);
+        return this.add(rhs);
     }
 
     /**
@@ -40,11 +40,11 @@ mixin template DifferentiableOperators(R)
     Returns:
         subtract expression.
     */
-    Minus!R opBinary(string op)(const(Differentiable!R) rhs) const nothrow pure if (op == "-")
+    Subtraction!R opBinary(string op)(const(Differentiable!R) rhs) const nothrow pure if (op == "-")
         in (rhs)
         out (r; r)
     {
-        return this.minus(rhs);
+        return this.sub(rhs);
     }
 
     /**
