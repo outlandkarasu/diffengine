@@ -104,10 +104,24 @@ interface Differentiable(R)
     Returns:
         binary operator expression.
     */
-    final auto opBinary(string op)(auto scope ref const(R) value) const nothrow pure
+    final auto opBinary(string op)(auto scope ref const(R) rhs) const nothrow pure
         if (op == "+" || op == "-" || op == "*" || op == "/")
     {
-        return opBinary!op(value.constant);
+        return opBinary!op(rhs.constant);
+    }
+
+    /**
+    Binary operator.
+
+    Params:
+        lhs = left hand side.
+    Returns:
+        binary operator expression.
+    */
+    final auto opBinaryRight(string op)(auto scope ref const(R) lhs) const nothrow pure
+        if (op == "+" || op == "-" || op == "*" || op == "/")
+    {
+        return lhs.constant.opBinary!op(this);
     }
 }
 
@@ -207,3 +221,15 @@ nothrow pure unittest
     assert((p1 * 2.0)().isClose(2.0));
     assert((p1 / 2.0)().isClose(0.5));
 }
+nothrow pure unittest
+{
+    import std.math : isClose;
+    import diffengine.parameter : param;
+
+    auto p1 = param(2.0);
+    assert((1.0 + p1)().isClose(3.0));
+    assert((1.0 - p1)().isClose(-1.0));
+    assert((1.0 * p1)().isClose(2.0));
+    assert((1.0 / p1)().isClose(0.5));
+}
+
