@@ -4,7 +4,7 @@ Differentiable type.
 module diffengine.differentiable;
 
 import diffengine.add_sub : Addition, add, Subtraction, sub;
-import diffengine.constant : zero, one, two;
+import diffengine.constant : zero, one, two, constant;
 import diffengine.div : Division, div;
 import diffengine.mul : Multiply, mul;
 
@@ -95,6 +95,20 @@ interface Differentiable(R)
     {
         return this.div(rhs);
     }
+
+    /**
+    Binary operator.
+
+    Params:
+        rhs = right hand side.
+    Returns:
+        binary operator expression.
+    */
+    final auto opBinary(string op)(auto scope ref const(R) value) const nothrow pure
+        if (op == "+" || op == "-" || op == "*" || op == "/")
+    {
+        return opBinary!op(value.constant);
+    }
 }
 
 /**
@@ -182,3 +196,14 @@ nothrow pure unittest
     assert((p1 / p2)().isClose(0.5));
 }
 
+nothrow pure unittest
+{
+    import std.math : isClose;
+    import diffengine.parameter : param;
+
+    auto p1 = param(1.0);
+    assert((p1 + 2.0)().isClose(3.0));
+    assert((p1 - 2.0)().isClose(-1.0));
+    assert((p1 * 2.0)().isClose(2.0));
+    assert((p1 / 2.0)().isClose(0.5));
+}
