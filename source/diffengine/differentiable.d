@@ -44,7 +44,7 @@ interface Differentiable(R)
     Returns:
         add expression.
     */
-    final Addition!R opBinary(string op)(const(Differentiable!R) rhs) const nothrow pure if (op == "+")
+    final const(Addition!R) opBinary(string op)(const(Differentiable!R) rhs) const nothrow pure if (op == "+")
         in (rhs)
         out (r; r)
     {
@@ -59,7 +59,7 @@ interface Differentiable(R)
     Returns:
         subtract expression.
     */
-    final Subtraction!R opBinary(string op)(const(Differentiable!R) rhs) const nothrow pure if (op == "-")
+    final const(Subtraction!R) opBinary(string op)(const(Differentiable!R) rhs) const nothrow pure if (op == "-")
         in (rhs)
         out (r; r)
     {
@@ -74,7 +74,7 @@ interface Differentiable(R)
     Returns:
         multiply expression.
     */
-    final Mul!R opBinary(string op)(const(Differentiable!R) rhs) const nothrow pure if (op == "*")
+    final const(Multiply!R) opBinary(string op)(const(Differentiable!R) rhs) const nothrow pure if (op == "*")
         in (rhs)
         out (r; r)
     {
@@ -89,7 +89,7 @@ interface Differentiable(R)
     Returns:
         divite expression.
     */
-    final Div!R opBinary(string op)(const(Differentiable!R) rhs) const nothrow pure if (op == "/")
+    final const(Division!R) opBinary(string op)(const(Differentiable!R) rhs) const nothrow pure if (op == "/")
         in (rhs)
         out (r; r)
     {
@@ -167,5 +167,18 @@ nothrow pure unittest
     assert(context.zero()().isClose(0.0));
     assert(context.one()().isClose(1.0));
     assert(context.two()().isClose(2.0));
+}
+
+nothrow pure unittest
+{
+    import std.math : isClose;
+    import diffengine.parameter : param;
+
+    auto p1 = param(1.0);
+    auto p2 = param(2.0);
+    assert((p1 + p2)().isClose(3.0));
+    assert((p1 - p2)().isClose(-1.0));
+    assert((p1 * p2)().isClose(2.0));
+    assert((p1 / p2)().isClose(0.5));
 }
 
