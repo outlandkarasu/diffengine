@@ -8,7 +8,7 @@ import diffengine.differentiable :
     DiffContext,
     DiffResult;
 import diffengine.constant : constant;
-import diffengine.plus_minus : minus;
+import diffengine.add_sub : sub;
 import diffengine.mul : mul;
 import diffengine.pow : square;
 
@@ -20,7 +20,7 @@ Differentiable division class.
 Params:
     R = result type.
 */
-private final class Division(R) : Differentiable!R
+final class Division(R) : Differentiable!R
 {
     this(const(Differentiable!R) lhs, const(Differentiable!R) rhs) const @nogc nothrow pure scope
         in (lhs && rhs)
@@ -42,7 +42,7 @@ private final class Division(R) : Differentiable!R
         auto result = lhsResult.result / rhsResult.result;
         auto ldy = mul(lhsResult.diff, rhsConstant);
         auto rdy = mul(lhsResult.result.constant, rhsResult.diff);
-        auto numerator = ldy.minus(rdy);
+        auto numerator = ldy.sub(rdy);
         return DiffResult!R(result, numerator.div(rhsConstant.square));
     }
 
