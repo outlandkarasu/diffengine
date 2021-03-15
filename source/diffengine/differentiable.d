@@ -3,7 +3,10 @@ Differentiable type.
 */
 module diffengine.differentiable;
 
+import diffengine.add_sub : Addition, add, Subtraction, sub;
 import diffengine.constant : zero, one, two;
+import diffengine.div : Division, div;
+import diffengine.mul : Multiply, mul;
 
 @safe:
 
@@ -32,6 +35,66 @@ interface Differentiable(R)
         Differentiate result.
     */
     DiffResult!R differentiate(scope const(DiffContext!R) context) const nothrow pure return scope;
+
+    /**
+    Add operator.
+
+    Params:
+        rhs = right hand side.
+    Returns:
+        add expression.
+    */
+    final Addition!R opBinary(string op)(const(Differentiable!R) rhs) const nothrow pure if (op == "+")
+        in (rhs)
+        out (r; r)
+    {
+        return this.add(rhs);
+    }
+
+    /**
+    Subtract operator.
+
+    Params:
+        rhs = right hand side.
+    Returns:
+        subtract expression.
+    */
+    final Subtraction!R opBinary(string op)(const(Differentiable!R) rhs) const nothrow pure if (op == "-")
+        in (rhs)
+        out (r; r)
+    {
+        return this.sub(rhs);
+    }
+
+    /**
+    Multiply operator.
+
+    Params:
+        rhs = right hand side.
+    Returns:
+        multiply expression.
+    */
+    final Mul!R opBinary(string op)(const(Differentiable!R) rhs) const nothrow pure if (op == "*")
+        in (rhs)
+        out (r; r)
+    {
+        return this.mul(rhs);
+    }
+
+    /**
+    Divide operator.
+
+    Params:
+        rhs = right hand side.
+    Returns:
+        divite expression.
+    */
+    final Div!R opBinary(string op)(const(Differentiable!R) rhs) const nothrow pure if (op == "/")
+        in (rhs)
+        out (r; r)
+    {
+        return this.div(rhs);
+    }
 }
 
 /**
