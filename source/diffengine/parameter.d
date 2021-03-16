@@ -20,7 +20,7 @@ final class Parameter(R) : Differentiable!R
 {
     this()(auto return scope ref const(R) value) nothrow pure return scope
     {
-        this.value_ = value;
+        bind(value);
     }
 
     override R opCall() const nothrow pure return scope
@@ -31,6 +31,17 @@ final class Parameter(R) : Differentiable!R
     override DiffResult!R differentiate(scope const(DiffContext!R) context) const nothrow pure return scope
     {
         return DiffResult!R(value_, (context.target is this) ? context.one : context.zero);
+    }
+
+    /**
+    Bind new value.
+
+    Params:
+        value = new value.
+    */
+    void bind()(auto return scope ref const(R) value) nothrow pure return scope
+    {
+        this.value_ = value;
     }
 
 private:
@@ -60,6 +71,8 @@ nothrow pure unittest
     auto d2 = p2.differentiate(context);
     assert(d2.result.isClose(1.1));
     assert(d2.diff is context.zero);
-}
 
+    p.bind(100.0);
+    assert(p().isClose(100.0));
+}
 
