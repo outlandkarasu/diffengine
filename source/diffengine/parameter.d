@@ -20,7 +20,7 @@ final class Parameter(R) : Differentiable!R
 {
     this()(auto return scope ref const(R) value) nothrow pure return scope
     {
-        this.value_ = value;
+        bind(value);
     }
 
     override R opCall() const nothrow pure return scope
@@ -34,17 +34,14 @@ final class Parameter(R) : Differentiable!R
     }
 
     /**
-    Assign new value.
+    Bind new value.
 
     Params:
         value = new value.
-    Returns:
-        this object.
     */
-    typeof(this) opAssign()(auto return scope ref const(R) value) nothrow pure return scope
+    void bind()(auto return scope ref const(R) value) nothrow pure return scope
     {
         this.value_ = value;
-        return this;
     }
 
 private:
@@ -75,8 +72,7 @@ nothrow pure unittest
     assert(d2.result.isClose(1.1));
     assert(d2.diff is context.zero);
 
-    p = 100.0;
+    p.bind(100.0);
     assert(p().isClose(100.0));
 }
-
 
