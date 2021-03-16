@@ -75,7 +75,7 @@ Differentiable power class.
 Params:
     R = result type.
 */
-private final class Power(R) : Differentiable!R
+final class Power(R) : Differentiable!R
 {
     this(const(Differentiable!R) lhs, const(Differentiable!R) rhs) const @nogc nothrow pure scope
         in (lhs && rhs)

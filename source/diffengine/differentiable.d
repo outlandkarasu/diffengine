@@ -7,6 +7,7 @@ import diffengine.add_sub : Addition, add, Subtraction, sub;
 import diffengine.constant : zero, one, two, constant;
 import diffengine.div : Division, div;
 import diffengine.mul : Multiply, mul;
+import diffengine.pow : Power, pow;
 
 @safe:
 
@@ -97,6 +98,21 @@ interface Differentiable(R)
     }
 
     /**
+    Power operator.
+
+    Params:
+        rhs = right hand side.
+    Returns:
+        power expression.
+    */
+    final const(Power!R) opBinary(string op)(const(Differentiable!R) rhs) const nothrow pure if (op == "^^")
+        in (rhs)
+        out (r; r)
+    {
+        return this.pow(rhs);
+    }
+
+    /**
     Binary operator.
 
     Params:
@@ -105,7 +121,7 @@ interface Differentiable(R)
         binary operator expression.
     */
     final auto opBinary(string op)(auto scope ref const(R) rhs) const nothrow pure
-        if (op == "+" || op == "-" || op == "*" || op == "/")
+        if (op == "+" || op == "-" || op == "*" || op == "/" || op == "^^")
     {
         return opBinary!op(rhs.constant);
     }
@@ -119,7 +135,7 @@ interface Differentiable(R)
         binary operator expression.
     */
     final auto opBinaryRight(string op)(auto scope ref const(R) lhs) const nothrow pure
-        if (op == "+" || op == "-" || op == "*" || op == "/")
+        if (op == "+" || op == "-" || op == "*" || op == "/" || op == "^^")
     {
         return lhs.constant.opBinary!op(this);
     }
@@ -208,6 +224,7 @@ nothrow pure unittest
     assert((p1 - p2)().isClose(-1.0));
     assert((p1 * p2)().isClose(2.0));
     assert((p1 / p2)().isClose(0.5));
+    assert((p1 ^^ p2)().isClose(1.0));
 }
 
 nothrow pure unittest
@@ -220,6 +237,7 @@ nothrow pure unittest
     assert((p1 - 2.0)().isClose(-1.0));
     assert((p1 * 2.0)().isClose(2.0));
     assert((p1 / 2.0)().isClose(0.5));
+    assert((p1 ^^ 2.0)().isClose(1.0));
 }
 nothrow pure unittest
 {
@@ -231,5 +249,6 @@ nothrow pure unittest
     assert((1.0 - p1)().isClose(-1.0));
     assert((1.0 * p1)().isClose(2.0));
     assert((1.0 / p1)().isClose(0.5));
+    assert((1.0 ^^ p1)().isClose(1.0));
 }
 
