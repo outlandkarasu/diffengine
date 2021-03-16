@@ -33,6 +33,20 @@ final class Parameter(R) : Differentiable!R
         return DiffResult!R(value_, (context.target is this) ? context.one : context.zero);
     }
 
+    /**
+    Assign new value.
+
+    Params:
+        value = new value.
+    Returns:
+        this object.
+    */
+    typeof(this) opAssign()(auto return scope ref const(R) value) nothrow pure return scope
+    {
+        this.value_ = value;
+        return this;
+    }
+
 private:
     R value_;
 }
@@ -60,6 +74,9 @@ nothrow pure unittest
     auto d2 = p2.differentiate(context);
     assert(d2.result.isClose(1.1));
     assert(d2.diff is context.zero);
+
+    p = 100.0;
+    assert(p().isClose(100.0));
 }
 
 
