@@ -3,7 +3,8 @@ Differentiable power function module.
 */
 module diffengine.pow;
 
-import std.math : pow;
+import std.math : mathLog = log, mathPow = pow;
+import std.traits : isNumeric;
 
 import diffengine.differentiable :
     Differentiable,
@@ -70,6 +71,26 @@ nothrow pure unittest
 }
 
 /**
+Square for numeric.
+
+Params:
+    x = value
+Returns:
+    squared value.
+*/
+T square(T)(T x) @nogc nothrow pure if(isNumeric!T)
+{
+    return x ^^ T(2);
+}
+
+///
+@nogc nothrow pure unittest
+{
+    import std.math : isClose;
+    assert(square(4.0).isClose(16.0));
+}
+
+/**
 Differentiable power class.
 
 Params:
@@ -86,16 +107,16 @@ final class Power(R) : Differentiable!R
 
     override R opCall() const nothrow pure return scope
     {
-        return pow(lhs_(), rhs_());
+        return mathPow(lhs_(), rhs_());
     }
 
     DiffResult!R differentiate(scope const(DiffContext!R) context) const nothrow pure return scope
     {
         auto lhsResult = lhs_.differentiate(context);
         auto rhsResult = rhs_.differentiate(context);
-        auto result = pow(lhsResult.result, rhsResult.result);
+        auto result = mathPow(lhsResult.result, rhsResult.result);
         auto ld = lhsResult.diff.mul(constant(rhsResult.result / lhsResult.result));
-        auto rd = mul(rhsResult.diff, R(log(lhsResult.result)).constant);
+        auto rd = mul(rhsResult.diff, R(mathLog(lhsResult.result)).constant);
         return DiffResult!R(result, mul(this, ld.add(rd)));
     }
 
@@ -127,5 +148,27 @@ nothrow pure unittest
 
     auto p2d = m.differentiate(p2.diffContext);
     assert(p2d.result.isClose(8.0));
-    assert(p2d.diff().isClose(8.0 * log(2.0)));
+    assert(p2d.diff().isClose(8.0 * mathLog(2.0)));
 }
+
+/**
+Power for numeric.
+
+Params:
+    lhs = lhs value
+    rhs = rhs value
+Returns:
+    powered value.
+*/
+T pow(T)(T lhs, T rhs) @nogc nothrow pure if(isNumeric!T)
+{
+    return mathPow(lhs, rhs);
+}
+
+///
+@nogc nothrow pure unittest
+{
+    import std.math : isClose;
+    assert(pow(4.0, 2.0).isClose(16.0));
+}
+

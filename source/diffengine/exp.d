@@ -3,8 +3,8 @@ Differentiable exp function module.
 */
 module diffengine.exp;
 
-import std.math : exp;
-import std.traits : isFloatingPoint;
+import std.math : mathExp = exp;
+import std.traits : isFloatingPoint, isNumeric;
 
 import diffengine.differentiable :
     Differentiable,
@@ -32,13 +32,13 @@ private final class Exp(R) : Differentiable!R
 
     override R opCall() const nothrow pure return scope
     {
-        return exp(x_());
+        return mathExp(x_());
     }
 
     DiffResult!R differentiate(scope const(DiffContext!R) context) const nothrow pure return scope
     {
         auto xResult = x_.differentiate(context);
-        auto result = exp(xResult.result);
+        auto result = mathExp(xResult.result);
         auto dexp = mul(result.constant, xResult.diff);
         return DiffResult!R(result, mul(result.constant, xResult.diff));
     }
@@ -63,16 +63,37 @@ nothrow pure unittest
 
     auto p = param(3.0);
     auto pexp = p.exp();
-    assert(pexp().isClose(exp(3.0)));
+    assert(pexp().isClose(mathExp(3.0)));
 
     auto context = p.diffContext;
     auto pexpd = pexp.differentiate(context);
-    assert(pexpd.result.isClose(exp(3.0)));
-    assert(pexpd.diff().isClose(exp(3.0)));
+    assert(pexpd.result.isClose(mathExp(3.0)));
+    assert(pexpd.diff().isClose(mathExp(3.0)));
 
     auto pexpx2 = exp(p.square);
     auto pexpx2d = pexpx2.differentiate(context);
-    assert(pexpx2d.result.isClose(exp(9.0)));
-    assert(pexpx2d.diff().isClose(exp(9.0) * 6.0));
+    assert(pexpx2d.result.isClose(mathExp(9.0)));
+    assert(pexpx2d.diff().isClose(mathExp(9.0) * 6.0));
+}
+
+/**
+exp for numeric.
+
+Params:
+    x = value
+Returns:
+    exp value.
+*/
+T exp(T)(T x) @nogc nothrow pure
+    if (isNumeric!T)
+{
+    return mathExp(x);
+}
+
+///
+@nogc nothrow pure unittest
+{
+    import std.math : isClose;
+    assert(exp(4.0).isClose(mathExp(4.0)));
 }
 
