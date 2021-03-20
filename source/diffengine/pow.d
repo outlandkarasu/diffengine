@@ -10,7 +10,6 @@ import diffengine.differentiable :
     Differentiable,
     DiffContext,
     DiffResult;
-import diffengine.constant : constant;
 import diffengine.mul : mul;
 import diffengine.div : div;
 import diffengine.add_sub : add;
@@ -42,7 +41,7 @@ private final class Square(R) : Differentiable!R
     {
         auto xResult = x_.differentiate(context);
         auto result = xResult.result * xResult.result;
-        return DiffResult!R(result, mul(constant(R(2) * xResult.result), xResult.diff));
+        return DiffResult!R(result, mul(mul(context.two, x_), xResult.diff));
     }
 
 private:
@@ -58,7 +57,6 @@ nothrow pure unittest
 {
     import std.math : isClose;
     import diffengine.differentiable : diffContext;
-    import diffengine.constant : constant;
     import diffengine.parameter : param;
 
     auto p = param(3.0);
@@ -68,6 +66,9 @@ nothrow pure unittest
     auto p2d = p2.differentiate(p.diffContext);
     assert(p2d.result.isClose(9.0));
     assert(p2d.diff().isClose(6.0));
+
+    auto p2dd = p2d.diff.differentiate(p.diffContext);
+    assert(p2dd.diff().isClose(2.0));
 }
 
 /**
@@ -115,8 +116,8 @@ final class Power(R) : Differentiable!R
         auto lhsResult = lhs_.differentiate(context);
         auto rhsResult = rhs_.differentiate(context);
         auto result = mathPow(lhsResult.result, rhsResult.result);
-        auto ld = lhsResult.diff.mul(constant(rhsResult.result / lhsResult.result));
-        auto rd = mul(rhsResult.diff, R(mathLog(lhsResult.result)).constant);
+        auto ld = lhsResult.diff.mul(rhs_.div(lhs_));
+        auto rd = mul(rhsResult.diff, log(lhs_));
         return DiffResult!R(result, mul(this, ld.add(rd)));
     }
 
@@ -134,7 +135,6 @@ nothrow pure unittest
 {
     import std.math : isClose;
     import diffengine.differentiable : diffContext;
-    import diffengine.constant : constant;
     import diffengine.parameter : param;
 
     auto p1 = param(2.0);

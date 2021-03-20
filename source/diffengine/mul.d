@@ -7,7 +7,6 @@ import diffengine.differentiable :
     Differentiable,
     DiffContext,
     DiffResult;
-import diffengine.constant : constant;
 import diffengine.add_sub : add;
 
 @safe:
@@ -37,8 +36,8 @@ final class Multiply(R) : Differentiable!R
         auto lhsResult = lhs_.differentiate(context);
         auto rhsResult = rhs_.differentiate(context);
         auto result = lhsResult.result * rhsResult.result;
-        auto ldy = mul(lhsResult.diff, rhsResult.result.constant);
-        auto rdy = mul(lhsResult.result.constant, rhsResult.diff);
+        auto ldy = mul(lhsResult.diff, rhs_);
+        auto rdy = mul(lhs_, rhsResult.diff);
         return DiffResult!R(result, ldy.add(rdy));
     }
 
@@ -56,7 +55,6 @@ nothrow pure unittest
 {
     import std.math : isClose;
     import diffengine.differentiable : diffContext;
-    import diffengine.constant : constant;
     import diffengine.parameter : param;
 
     auto p1 = param(2.0);

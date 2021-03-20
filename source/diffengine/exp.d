@@ -10,7 +10,6 @@ import diffengine.differentiable :
     Differentiable,
     DiffContext,
     DiffResult;
-import diffengine.constant : constant;
 import diffengine.mul : mul;
 
 @safe:
@@ -39,8 +38,7 @@ private final class Exp(R) : Differentiable!R
     {
         auto xResult = x_.differentiate(context);
         auto result = mathExp(xResult.result);
-        auto dexp = mul(result.constant, xResult.diff);
-        return DiffResult!R(result, mul(result.constant, xResult.diff));
+        return DiffResult!R(result, mul(this, xResult.diff));
     }
 
 private:
@@ -57,7 +55,6 @@ nothrow pure unittest
 {
     import std.math : isClose;
     import diffengine.differentiable : diffContext;
-    import diffengine.constant : constant;
     import diffengine.parameter : param;
     import diffengine.pow : square;
 
