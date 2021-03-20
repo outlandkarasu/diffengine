@@ -7,7 +7,6 @@ import diffengine.differentiable :
     Differentiable,
     DiffContext,
     DiffResult;
-import diffengine.constant : constant;
 import diffengine.add_sub : sub;
 import diffengine.mul : mul;
 import diffengine.pow : square;
@@ -38,12 +37,11 @@ final class Division(R) : Differentiable!R
     {
         auto lhsResult = lhs_.differentiate(context);
         auto rhsResult = rhs_.differentiate(context);
-        auto rhsConstant = rhsResult.result.constant;
         auto result = lhsResult.result / rhsResult.result;
-        auto ldy = mul(lhsResult.diff, rhsConstant);
-        auto rdy = mul(lhsResult.result.constant, rhsResult.diff);
+        auto ldy = mul(lhsResult.diff, rhs_);
+        auto rdy = mul(lhs_, rhsResult.diff);
         auto numerator = ldy.sub(rdy);
-        return DiffResult!R(result, numerator.div(rhsConstant.square));
+        return DiffResult!R(result, numerator.div(rhs_.square));
     }
 
 private:
@@ -60,7 +58,6 @@ pure nothrow unittest
 {
     import std.math : isClose;
     import diffengine.differentiable : diffContext;
-    import diffengine.constant : constant;
     import diffengine.parameter : param;
 
     auto p1 = param(2.0);
