@@ -3,6 +3,9 @@ Differentiable type.
 */
 module diffengine.differentiable;
 
+import std.typecons : Rebindable, rebindable;
+import std.exception : assumeWontThrow;
+
 import diffengine.add_sub : Addition, add, Subtraction, sub;
 import diffengine.constant : zero, one, two, constant;
 import diffengine.div : Division, div;
@@ -166,11 +169,18 @@ final class DiffContext(R)
         const(Differentiable!R) two() { return two_; }
     }
 
+    const(Differentiable!R) diff(const(Differentiable!R) f) nothrow pure @safe
+        in (f)
+    {
+        return assumeWontThrow(memo_.require(f, f.differentiate(this).rebindable));
+    }
+
 private:
     const(Differentiable!R) target_;
     const(Differentiable!R) zero_;
     const(Differentiable!R) one_;
     const(Differentiable!R) two_;
+    Rebindable!(const(Differentiable!R))[const(Differentiable!R)] memo_;
 }
 
 /**
@@ -200,6 +210,22 @@ nothrow pure unittest
     assert(context.one()().isClose(1.0));
     assert(context.two()().isClose(2.0));
 }
+
+nothrow pure unittest
+{
+    import std.math : isClose;
+    import diffengine.parameter : param;
+
+    auto p = param(1.0);
+    auto context = diffContext(p);
+    auto f = p * p;
+    auto df = context.diff(f);
+    assert(df().isClose(2.0));
+
+    // cached for same function.
+    assert(context.diff(f) is df);
+}
+
 
 nothrow pure unittest
 {
