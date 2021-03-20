@@ -35,6 +35,7 @@ private final class Log(R) : Differentiable!R
     }
 
     const(Differentiable!R) differentiate(scope DiffContext!R context) const nothrow pure return scope
+        in (false)
     {
         auto xDiff = x_.differentiate(context);
         auto dlog = div(context.one, x_);

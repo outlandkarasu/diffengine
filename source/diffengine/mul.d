@@ -31,6 +31,7 @@ final class Multiply(R) : Differentiable!R
     }
 
     const(Differentiable!R) differentiate(scope DiffContext!R context) const nothrow pure return scope
+        in (false)
     {
         auto lhsDiff = lhs_.differentiate(context);
         auto rhsDiff = rhs_.differentiate(context);

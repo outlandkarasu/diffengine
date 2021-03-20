@@ -34,6 +34,7 @@ private final class Exp(R) : Differentiable!R
     }
 
     const(Differentiable!R) differentiate(scope DiffContext!R context) const nothrow pure return scope
+        in (false)
     {
         auto xDiff = x_.differentiate(context);
         return mul(this, xDiff);

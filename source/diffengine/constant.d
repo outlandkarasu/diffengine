@@ -126,7 +126,8 @@ final class Constant(R) : Differentiable!R
         return value_;
     }
 
-    override const(Differentiable!R) differentiate(scope const(DiffContext!R) context) const nothrow pure return scope
+    override const(Differentiable!R) differentiate(scope DiffContext!R context) const nothrow pure return scope
+        in (false)
     {
         return context.zero;
     }

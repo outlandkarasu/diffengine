@@ -28,6 +28,7 @@ final class Parameter(R) : Differentiable!R
     }
 
     override const(Differentiable!R) differentiate(scope DiffContext!R context) const nothrow pure return scope
+        in (false)
     {
         return (context.target is this) ? context.one : context.zero;
     }
