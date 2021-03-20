@@ -35,8 +35,8 @@ private final class DifferentiableAddSub(R, string op) : Differentiable!R
     const(Differentiable!R) differentiate(scope DiffContext!R context) const nothrow pure return scope
         in (false)
     {
-        auto lhsDiff = lhs_.differentiate(context);
-        auto rhsDiff = rhs_.differentiate(context);
+        auto lhsDiff = context.diff(lhs_);
+        auto rhsDiff = context.diff(rhs_);
         return new const(DifferentiableAddSub!(R, op))(lhsDiff, rhsDiff);
     }
 

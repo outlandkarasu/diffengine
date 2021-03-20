@@ -33,8 +33,8 @@ final class Multiply(R) : Differentiable!R
     const(Differentiable!R) differentiate(scope DiffContext!R context) const nothrow pure return scope
         in (false)
     {
-        auto lhsDiff = lhs_.differentiate(context);
-        auto rhsDiff = rhs_.differentiate(context);
+        auto lhsDiff = context.diff(lhs_);
+        auto rhsDiff = context.diff(rhs_);
         auto ldy = mul(lhsDiff, rhs_);
         auto rdy = mul(lhs_, rhsDiff);
         return ldy.add(rdy);

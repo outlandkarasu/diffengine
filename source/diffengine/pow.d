@@ -38,7 +38,7 @@ private final class Square(R) : Differentiable!R
 
     const(Differentiable!R) differentiate(scope DiffContext!R context) const nothrow pure return scope
     {
-        auto xDiff = x_.differentiate(context);
+        auto xDiff = context.diff(x_);
         return mul(mul(context.two, x_), xDiff);
     }
 
@@ -111,8 +111,8 @@ final class Power(R) : Differentiable!R
     const(Differentiable!R) differentiate(scope DiffContext!R context) const nothrow pure return scope
         in (false)
     {
-        auto lhsDiff = lhs_.differentiate(context);
-        auto rhsDiff = rhs_.differentiate(context);
+        auto lhsDiff = context.diff(lhs_);
+        auto rhsDiff = context.diff(rhs_);
         auto ld = lhsDiff.mul(rhs_.div(lhs_));
         auto rd = mul(rhsDiff, log(lhs_));
         return mul(this, ld.add(rd));
