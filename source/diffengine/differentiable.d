@@ -35,7 +35,7 @@ interface Differentiable(R)
     Returns:
         Differentiate result.
     */
-    DiffResult!R differentiate(scope const(DiffContext!R) context) const nothrow pure return scope;
+    const(Differentiable!R) differentiate(scope const(DiffContext!R) context) const nothrow pure return scope;
 
     /**
     Add operator.
@@ -142,18 +142,6 @@ interface Differentiable(R)
 }
 
 /**
-Differentiable function result and differentiated function.
-
-Params:
-    R = result type.
-*/
-struct DiffResult(R)
-{
-    R result;
-    const(Differentiable!R) diff;
-}
-
-/**
 Differentiate context.
 
 Params:
@@ -239,6 +227,7 @@ nothrow pure unittest
     assert((p1 / 2.0)().isClose(0.5));
     assert((p1 ^^ 2.0)().isClose(1.0));
 }
+
 nothrow pure unittest
 {
     import std.math : isClose;

@@ -5,7 +5,6 @@ module diffengine.constant;
 
 import diffengine.differentiable :
     Differentiable,
-    DiffResult,
     DiffContext,
     diffContext;
 
@@ -27,9 +26,9 @@ final class StaticConstant(R, R value) : Differentiable!R
         return R(value);
     }
 
-    override DiffResult!R differentiate(scope const(DiffContext!R) context) const nothrow pure return scope
+    override const(Differentiable!R) differentiate(scope const(DiffContext!R) context) const nothrow pure return scope
     {
-        return DiffResult!R(R(value), context.zero);
+        return context.zero;
     }
 }
 
@@ -57,8 +56,7 @@ nothrow pure unittest
     // differentiated.
     auto context = diffContext(z);
     auto d = z.differentiate(context);
-    assert(d.result.isClose(0.0));
-    assert(d.diff is context.zero);
+    assert(d is context.zero);
 }
 
 /**
@@ -85,8 +83,7 @@ nothrow pure unittest
     // differentiate
     auto context = diffContext(o);
     auto d = o.differentiate(context);
-    assert(d.result.isClose(1.0));
-    assert(d.diff is context.zero);
+    assert(d is context.zero);
 }
 
 /**
@@ -113,8 +110,7 @@ nothrow pure unittest
     // differentiate
     auto context = diffContext(o);
     auto d = o.differentiate(context);
-    assert(d.result.isClose(2.0));
-    assert(d.diff is context.zero);
+    assert(d is context.zero);
 }
 
 /**
@@ -130,9 +126,9 @@ final class Constant(R) : Differentiable!R
         return value_;
     }
 
-    override DiffResult!R differentiate(scope const(DiffContext!R) context) const nothrow pure return scope
+    override const(Differentiable!R) differentiate(scope const(DiffContext!R) context) const nothrow pure return scope
     {
-        return DiffResult!R(value_, context.zero);
+        return context.zero;
     }
 
 private:
@@ -168,7 +164,6 @@ nothrow pure unittest
     // differentiate
     auto context = diffContext(c);
     auto d = c.differentiate(context);
-    assert(d.result.isClose(1.234));
-    assert(d.diff is context.zero);
+    assert(d is context.zero);
 }
 

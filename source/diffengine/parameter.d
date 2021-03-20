@@ -5,8 +5,7 @@ module diffengine.parameter;
 
 import diffengine.differentiable :
     Differentiable,
-    DiffContext,
-    DiffResult;
+    DiffContext;
 
 @safe:
 
@@ -28,9 +27,9 @@ final class Parameter(R) : Differentiable!R
         return value_;
     }
 
-    override DiffResult!R differentiate(scope const(DiffContext!R) context) const nothrow pure return scope
+    override const(Differentiable!R) differentiate(scope const(DiffContext!R) context) const nothrow pure return scope
     {
-        return DiffResult!R(value_, (context.target is this) ? context.one : context.zero);
+        return (context.target is this) ? context.one : context.zero;
     }
 
     /**
@@ -64,13 +63,11 @@ nothrow pure unittest
 
     auto context = diffContext(p);
     auto d = p.differentiate(context);
-    assert(d.result.isClose(1.0));
-    assert(d.diff is context.one);
+    assert(d is context.one);
 
     auto p2 = param(1.1);
     auto d2 = p2.differentiate(context);
-    assert(d2.result.isClose(1.1));
-    assert(d2.diff is context.zero);
+    assert(d2 is context.zero);
 
     p.bind(100.0);
     assert(p().isClose(100.0));
