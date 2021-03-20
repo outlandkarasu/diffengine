@@ -5,8 +5,7 @@ module diffengine.add_sub;
 
 import diffengine.differentiable :
     Differentiable,
-    DiffContext,
-    DiffResult;
+    DiffContext;
 
 @safe:
 
@@ -33,13 +32,12 @@ private final class DifferentiableAddSub(R, string op) : Differentiable!R
         return mixin("lhs_() " ~ op ~ " rhs_()");
     }
 
-    DiffResult!R differentiate(scope const(DiffContext!R) context) const nothrow pure return scope
+    const(Differentiable!R) differentiate(scope DiffContext!R context) const nothrow pure return scope
+        in (false)
     {
-        auto lhsResult = lhs_.differentiate(context);
-        auto rhsResult = rhs_.differentiate(context);
-        auto result = mixin("lhsResult.result " ~ op ~ " rhsResult.result");
-        auto dy = new const(DifferentiableAddSub!(R, op))(lhsResult.diff, rhsResult.diff);
-        return DiffResult!R(result, dy);
+        auto lhsDiff = context.diff(lhs_);
+        auto rhsDiff = context.diff(rhs_);
+        return new const(DifferentiableAddSub!(R, op))(lhsDiff, rhsDiff);
     }
 
 private:
@@ -78,11 +76,9 @@ nothrow pure unittest
 
     auto context = diffContext(c2);
     auto pd = p.differentiate(context);
-    assert(pd.result.isClose(3.0));
-    assert(pd.diff().isClose(1.0));
+    assert(pd().isClose(1.0));
 
     auto md = m.differentiate(context);
-    assert(md.result.isClose(-1.0));
-    assert(md.diff().isClose(-1.0));
+    assert(md().isClose(-1.0));
 }
 

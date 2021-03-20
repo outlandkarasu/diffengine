@@ -8,8 +8,7 @@ import std.traits : isFloatingPoint, isNumeric;
 
 import diffengine.differentiable :
     Differentiable,
-    DiffContext,
-    DiffResult;
+    DiffContext;
 import diffengine.mul : mul;
 
 @safe:
@@ -34,11 +33,11 @@ private final class Exp(R) : Differentiable!R
         return mathExp(x_());
     }
 
-    DiffResult!R differentiate(scope const(DiffContext!R) context) const nothrow pure return scope
+    const(Differentiable!R) differentiate(scope DiffContext!R context) const nothrow pure return scope
+        in (false)
     {
-        auto xResult = x_.differentiate(context);
-        auto result = mathExp(xResult.result);
-        return DiffResult!R(result, mul(this, xResult.diff));
+        auto xDiff = context.diff(x_);
+        return mul(this, xDiff);
     }
 
 private:
@@ -64,13 +63,11 @@ nothrow pure unittest
 
     auto context = p.diffContext;
     auto pexpd = pexp.differentiate(context);
-    assert(pexpd.result.isClose(mathExp(3.0)));
-    assert(pexpd.diff().isClose(mathExp(3.0)));
+    assert(pexpd().isClose(mathExp(3.0)));
 
     auto pexpx2 = exp(p.square);
     auto pexpx2d = pexpx2.differentiate(context);
-    assert(pexpx2d.result.isClose(mathExp(9.0)));
-    assert(pexpx2d.diff().isClose(mathExp(9.0) * 6.0));
+    assert(pexpx2d().isClose(mathExp(9.0) * 6.0));
 }
 
 /**

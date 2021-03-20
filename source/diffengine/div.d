@@ -5,8 +5,7 @@ module diffengine.div;
 
 import diffengine.differentiable :
     Differentiable,
-    DiffContext,
-    DiffResult;
+    DiffContext;
 import diffengine.add_sub : sub;
 import diffengine.mul : mul;
 import diffengine.pow : square;
@@ -33,15 +32,15 @@ final class Division(R) : Differentiable!R
         return lhs_() / rhs_();
     }
 
-    DiffResult!R differentiate(scope const(DiffContext!R) context) const nothrow pure return scope
+    const(Differentiable!R) differentiate(scope DiffContext!R context) const nothrow pure return scope
+        in (false)
     {
-        auto lhsResult = lhs_.differentiate(context);
-        auto rhsResult = rhs_.differentiate(context);
-        auto result = lhsResult.result / rhsResult.result;
-        auto ldy = mul(lhsResult.diff, rhs_);
-        auto rdy = mul(lhs_, rhsResult.diff);
+        auto lhsDiff = context.diff(lhs_);
+        auto rhsDiff = context.diff(rhs_);
+        auto ldy = mul(lhsDiff, rhs_);
+        auto rdy = mul(lhs_, rhsDiff);
         auto numerator = ldy.sub(rdy);
-        return DiffResult!R(result, numerator.div(rhs_.square));
+        return numerator.div(rhs_.square);
     }
 
 private:
@@ -66,11 +65,9 @@ pure nothrow unittest
     assert(m().isClose(2.0/3.0));
 
     auto p1d = m.differentiate(p1.diffContext);
-    assert(p1d.result.isClose(2.0/3.0));
-    assert(p1d.diff().isClose(3.0/9.0));
+    assert(p1d().isClose(3.0/9.0));
 
     auto p2d = m.differentiate(p2.diffContext);
-    assert(p2d.result.isClose(2.0/3.0));
-    assert(p2d.diff().isClose(-2.0/9.0));
+    assert(p2d().isClose(-2.0/9.0));
 }
 

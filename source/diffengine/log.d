@@ -8,8 +8,7 @@ import std.traits : isFloatingPoint, isNumeric;
 
 import diffengine.differentiable :
     Differentiable,
-    DiffContext,
-    DiffResult;
+    DiffContext;
 import diffengine.mul : mul;
 import diffengine.div : div;
 
@@ -35,12 +34,12 @@ private final class Log(R) : Differentiable!R
         return mathLog(x_());
     }
 
-    DiffResult!R differentiate(scope const(DiffContext!R) context) const nothrow pure return scope
+    const(Differentiable!R) differentiate(scope DiffContext!R context) const nothrow pure return scope
+        in (false)
     {
-        auto xResult = x_.differentiate(context);
-        R result = mathLog(xResult.result);
+        auto xDiff = context.diff(x_);
         auto dlog = div(context.one, x_);
-        return DiffResult!R(result, mul(dlog, xResult.diff));
+        return mul(dlog, xDiff);
     }
 
 private:
@@ -66,13 +65,11 @@ nothrow pure unittest
 
     auto context = p.diffContext;
     auto plogd = plog.differentiate(context);
-    assert(plogd.result.isClose(mathLog(3.0)));
-    assert(plogd.diff().isClose(1.0/3.0));
+    assert(plogd().isClose(1.0/3.0));
 
     auto plog2x = log(p.square);
     auto plog2xd = plog2x.differentiate(context);
-    assert(plog2xd.result.isClose(mathLog(9.0)));
-    assert(plog2xd.diff().isClose(2.0/3.0));
+    assert(plog2xd().isClose(2.0/3.0));
 }
 
 /**

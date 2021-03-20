@@ -3,6 +3,9 @@ Differentiable type.
 */
 module diffengine.differentiable;
 
+import std.typecons : Rebindable, rebindable;
+import std.exception : assumeWontThrow;
+
 import diffengine.add_sub : Addition, add, Subtraction, sub;
 import diffengine.constant : zero, one, two, constant;
 import diffengine.div : Division, div;
@@ -35,7 +38,9 @@ interface Differentiable(R)
     Returns:
         Differentiate result.
     */
-    DiffResult!R differentiate(scope const(DiffContext!R) context) const nothrow pure return scope;
+    const(Differentiable!R) differentiate(scope DiffContext!R context) const nothrow pure return scope
+        in (context)
+        out (r; r);
 
     /**
     Add operator.
@@ -142,18 +147,6 @@ interface Differentiable(R)
 }
 
 /**
-Differentiable function result and differentiated function.
-
-Params:
-    R = result type.
-*/
-struct DiffResult(R)
-{
-    R result;
-    const(Differentiable!R) diff;
-}
-
-/**
 Differentiate context.
 
 Params:
@@ -178,11 +171,18 @@ final class DiffContext(R)
         const(Differentiable!R) two() { return two_; }
     }
 
+    const(Differentiable!R) diff(const(Differentiable!R) f) nothrow pure @safe scope
+        in (f)
+    {
+        return assumeWontThrow(memo_.require(f, f.differentiate(this).rebindable));
+    }
+
 private:
     const(Differentiable!R) target_;
     const(Differentiable!R) zero_;
     const(Differentiable!R) one_;
     const(Differentiable!R) two_;
+    Rebindable!(const(Differentiable!R))[const(Differentiable!R)] memo_;
 }
 
 /**
@@ -218,6 +218,22 @@ nothrow pure unittest
     import std.math : isClose;
     import diffengine.parameter : param;
 
+    auto p = param(1.0);
+    auto context = diffContext(p);
+    auto f = p * p;
+    auto df = context.diff(f);
+    assert(df().isClose(2.0));
+
+    // cached for same function.
+    assert(context.diff(f) is df);
+}
+
+
+nothrow pure unittest
+{
+    import std.math : isClose;
+    import diffengine.parameter : param;
+
     auto p1 = param(1.0);
     auto p2 = param(2.0);
     assert((p1 + p2)().isClose(3.0));
@@ -239,6 +255,7 @@ nothrow pure unittest
     assert((p1 / 2.0)().isClose(0.5));
     assert((p1 ^^ 2.0)().isClose(1.0));
 }
+
 nothrow pure unittest
 {
     import std.math : isClose;

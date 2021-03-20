@@ -8,8 +8,7 @@ import std.traits : isNumeric;
 
 import diffengine.differentiable :
     Differentiable,
-    DiffContext,
-    DiffResult;
+    DiffContext;
 import diffengine.mul : mul;
 import diffengine.div : div;
 import diffengine.add_sub : add;
@@ -37,11 +36,10 @@ private final class Square(R) : Differentiable!R
         return x * x;
     }
 
-    DiffResult!R differentiate(scope const(DiffContext!R) context) const nothrow pure return scope
+    const(Differentiable!R) differentiate(scope DiffContext!R context) const nothrow pure return scope
     {
-        auto xResult = x_.differentiate(context);
-        auto result = xResult.result * xResult.result;
-        return DiffResult!R(result, mul(mul(context.two, x_), xResult.diff));
+        auto xDiff = context.diff(x_);
+        return mul(mul(context.two, x_), xDiff);
     }
 
 private:
@@ -64,11 +62,10 @@ nothrow pure unittest
     assert(p2().isClose(9.0));
 
     auto p2d = p2.differentiate(p.diffContext);
-    assert(p2d.result.isClose(9.0));
-    assert(p2d.diff().isClose(6.0));
+    assert(p2d().isClose(6.0));
 
-    auto p2dd = p2d.diff.differentiate(p.diffContext);
-    assert(p2dd.diff().isClose(2.0));
+    auto p2dd = p2d.differentiate(p.diffContext);
+    assert(p2dd().isClose(2.0));
 }
 
 /**
@@ -111,14 +108,14 @@ final class Power(R) : Differentiable!R
         return mathPow(lhs_(), rhs_());
     }
 
-    DiffResult!R differentiate(scope const(DiffContext!R) context) const nothrow pure return scope
+    const(Differentiable!R) differentiate(scope DiffContext!R context) const nothrow pure return scope
+        in (false)
     {
-        auto lhsResult = lhs_.differentiate(context);
-        auto rhsResult = rhs_.differentiate(context);
-        auto result = mathPow(lhsResult.result, rhsResult.result);
-        auto ld = lhsResult.diff.mul(rhs_.div(lhs_));
-        auto rd = mul(rhsResult.diff, log(lhs_));
-        return DiffResult!R(result, mul(this, ld.add(rd)));
+        auto lhsDiff = context.diff(lhs_);
+        auto rhsDiff = context.diff(rhs_);
+        auto ld = lhsDiff.mul(rhs_.div(lhs_));
+        auto rd = mul(rhsDiff, log(lhs_));
+        return mul(this, ld.add(rd));
     }
 
 private:
@@ -143,12 +140,10 @@ nothrow pure unittest
     assert(m().isClose(8.0));
 
     auto p1d = m.differentiate(p1.diffContext);
-    assert(p1d.result.isClose(8.0));
-    assert(p1d.diff().isClose(12.0));
+    assert(p1d().isClose(12.0));
 
     auto p2d = m.differentiate(p2.diffContext);
-    assert(p2d.result.isClose(8.0));
-    assert(p2d.diff().isClose(8.0 * mathLog(2.0)));
+    assert(p2d().isClose(8.0 * mathLog(2.0)));
 }
 
 /**
