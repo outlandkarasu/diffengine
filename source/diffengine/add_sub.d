@@ -32,7 +32,7 @@ private final class DifferentiableAddSub(R, string op) : Differentiable!R
         return mixin("lhs_() " ~ op ~ " rhs_()");
     }
 
-    const(Differentiable!R) differentiate(scope const(DiffContext!R) context) const nothrow pure return scope
+    const(Differentiable!R) differentiate(scope DiffContext!R context) const nothrow pure return scope
     {
         auto lhsDiff = lhs_.differentiate(context);
         auto rhsDiff = rhs_.differentiate(context);

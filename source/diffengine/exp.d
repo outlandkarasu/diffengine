@@ -33,7 +33,7 @@ private final class Exp(R) : Differentiable!R
         return mathExp(x_());
     }
 
-    const(Differentiable!R) differentiate(scope const(DiffContext!R) context) const nothrow pure return scope
+    const(Differentiable!R) differentiate(scope DiffContext!R context) const nothrow pure return scope
     {
         auto xDiff = x_.differentiate(context);
         return mul(this, xDiff);

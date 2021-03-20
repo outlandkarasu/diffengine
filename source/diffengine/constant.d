@@ -26,7 +26,7 @@ final class StaticConstant(R, R value) : Differentiable!R
         return R(value);
     }
 
-    override const(Differentiable!R) differentiate(scope const(DiffContext!R) context) const nothrow pure return scope
+    override const(Differentiable!R) differentiate(scope DiffContext!R context) const nothrow pure return scope
     {
         return context.zero;
     }

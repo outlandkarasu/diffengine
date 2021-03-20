@@ -30,7 +30,7 @@ final class Multiply(R) : Differentiable!R
         return lhs_() * rhs_();
     }
 
-    const(Differentiable!R) differentiate(scope const(DiffContext!R) context) const nothrow pure return scope
+    const(Differentiable!R) differentiate(scope DiffContext!R context) const nothrow pure return scope
     {
         auto lhsDiff = lhs_.differentiate(context);
         auto rhsDiff = rhs_.differentiate(context);

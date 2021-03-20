@@ -38,7 +38,7 @@ interface Differentiable(R)
     Returns:
         Differentiate result.
     */
-    const(Differentiable!R) differentiate(scope const(DiffContext!R) context) const nothrow pure return scope;
+    const(Differentiable!R) differentiate(scope DiffContext!R context) const nothrow pure return scope;
 
     /**
     Add operator.
