@@ -10,7 +10,6 @@ import diffengine.differentiable :
     Differentiable,
     DiffContext,
     DiffResult;
-import diffengine.constant : constant;
 import diffengine.mul : mul;
 import diffengine.div : div;
 
@@ -40,7 +39,7 @@ private final class Log(R) : Differentiable!R
     {
         auto xResult = x_.differentiate(context);
         R result = mathLog(xResult.result);
-        auto dlog = div(context.one, xResult.result.constant);
+        auto dlog = div(context.one, x_);
         return DiffResult!R(result, mul(dlog, xResult.diff));
     }
 
@@ -58,7 +57,6 @@ nothrow pure unittest
 {
     import std.math : isClose;
     import diffengine.differentiable : diffContext;
-    import diffengine.constant : constant;
     import diffengine.parameter : param;
     import diffengine.pow : square;
 
