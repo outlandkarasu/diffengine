@@ -169,7 +169,7 @@ final class DiffContext(R)
         const(Differentiable!R) two() { return two_; }
     }
 
-    const(Differentiable!R) diff(const(Differentiable!R) f) nothrow pure @safe
+    const(Differentiable!R) diff(const(Differentiable!R) f) nothrow pure @safe scope
         in (f)
     {
         return assumeWontThrow(memo_.require(f, f.differentiate(this).rebindable));
