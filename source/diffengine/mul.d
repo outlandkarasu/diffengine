@@ -12,7 +12,6 @@ import diffengine.add_sub : add;
 
 /**
 Differentiable multiply class.
-
 Params:
     R = result type.
 */
