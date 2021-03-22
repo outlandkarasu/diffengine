@@ -113,7 +113,7 @@ final class Power(R) : Differentiable!R
     {
         auto lhsDiff = context.diff(lhs_);
         auto rhsDiff = context.diff(rhs_);
-        auto ld = context.mul(lhsDiff, rhs_.div(lhs_));
+        auto ld = context.mul(lhsDiff, context.div(rhs_, lhs_));
         auto rd = context.mul(rhsDiff, log(lhs_));
         return context.mul(this, ld.add(rd));
     }

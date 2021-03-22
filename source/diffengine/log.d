@@ -38,7 +38,7 @@ private final class Log(R) : Differentiable!R
         in (false)
     {
         auto xDiff = context.diff(x_);
-        auto dlog = div(context.one, x_);
+        auto dlog = context.div(context.one, x_);
         return context.mul(dlog, xDiff);
     }
 
