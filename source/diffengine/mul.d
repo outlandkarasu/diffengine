@@ -36,7 +36,7 @@ final class Multiply(R) : Differentiable!R
         auto rhsDiff = context.diff(rhs_);
         auto ldy = context.mul(lhsDiff, rhs_);
         auto rdy = context.mul(lhs_, rhsDiff);
-        return ldy.add(rdy);
+        return context.add(ldy, rdy);
     }
 
 private:

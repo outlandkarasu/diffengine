@@ -47,14 +47,14 @@ private:
 
 alias Addition(R) = const(DifferentiableAddSub!(R, "+"));
 
-Addition!R add(R)(const(Differentiable!R) lhs, const(Differentiable!R) rhs) nothrow pure
+const(Addition!R) add(R)(const(Differentiable!R) lhs, const(Differentiable!R) rhs) nothrow pure
 {
     return new Addition!R(lhs, rhs);
 }
 
 alias Subtraction(R) = const(DifferentiableAddSub!(R, "-"));
 
-Subtraction!R sub(R)(const(Differentiable!R) lhs, const(Differentiable!R) rhs) nothrow pure
+const(Subtraction!R) sub(R)(const(Differentiable!R) lhs, const(Differentiable!R) rhs) nothrow pure
 {
     return new Subtraction!R(lhs, rhs);
 }
@@ -80,5 +80,34 @@ nothrow pure unittest
 
     auto md = m.differentiate(context);
     assert(md().isClose(-1.0));
+}
+
+const(Differentiable!R) add(R)(scope DiffContext!R context, const(Differentiable!R) lhs, const(Differentiable!R) rhs) nothrow pure
+{
+    if (context.isZero(lhs))
+    {
+        return rhs;
+    }
+    else if (context.isZero(rhs))
+    {
+        return lhs;
+    }
+
+    return add(lhs, rhs);
+}
+
+nothrow pure unittest
+{
+    import std.math : isClose;
+    import diffengine.differentiable : diffContext;
+    import diffengine.constant : constant;
+    import diffengine.parameter : param;
+
+    auto c1 = constant(1.0);
+    auto c2 = param(2.0);
+    auto context = diffContext(c2);
+    assert(context.add(c1, c2)().isClose(3.0));
+    assert(context.add(context.zero, c2) is c2);
+    assert(context.add(c1, context.zero) is c1);
 }
 
