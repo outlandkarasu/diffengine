@@ -39,8 +39,8 @@ final class Division(R) : Differentiable!R
         auto rhsDiff = context.diff(rhs_);
         auto ldy = context.mul(lhsDiff, rhs_);
         auto rdy = context.mul(lhs_, rhsDiff);
-        auto numerator = ldy.sub(rdy);
-        return numerator.div(rhs_.square);
+        auto numerator = context.sub(ldy, rdy);
+        return context.div(numerator, rhs_.square);
     }
 
 private:

@@ -111,3 +111,28 @@ nothrow pure unittest
     assert(context.add(c1, context.zero) is c1);
 }
 
+const(Differentiable!R) sub(R)(scope DiffContext!R context, const(Differentiable!R) lhs, const(Differentiable!R) rhs) nothrow pure
+{
+    if (context.isZero(rhs))
+    {
+        return lhs;
+    }
+
+    return sub(lhs, rhs);
+}
+
+nothrow pure unittest
+{
+    import std.math : isClose;
+    import diffengine.differentiable : diffContext;
+    import diffengine.constant : constant;
+    import diffengine.parameter : param;
+
+    auto c1 = constant(1.0);
+    auto c2 = param(2.0);
+    auto context = diffContext(c2);
+    assert(context.sub(c1, c2)().isClose(-1.0));
+    assert(context.sub(context.zero, c2)().isClose(-2.0));
+    assert(context.sub(c1, context.zero) is c1);
+}
+
