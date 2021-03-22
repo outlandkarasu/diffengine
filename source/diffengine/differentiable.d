@@ -177,6 +177,21 @@ final class DiffContext(R)
         return assumeWontThrow(memo_.require(f, f.differentiate(this).rebindable));
     }
 
+    bool isZero(scope const(Differentiable!R) value) @nogc nothrow pure @safe scope
+    {
+        return value is zero_;
+    }
+
+    bool isOne(scope const(Differentiable!R) value) @nogc nothrow pure @safe scope
+    {
+        return value is one_;
+    }
+
+    bool isTwo(scope const(Differentiable!R) value) @nogc nothrow pure @safe scope
+    {
+        return value is two_;
+    }
+
 private:
     const(Differentiable!R) target_;
     const(Differentiable!R) zero_;
@@ -211,6 +226,13 @@ nothrow pure unittest
     assert(context.zero()().isClose(0.0));
     assert(context.one()().isClose(1.0));
     assert(context.two()().isClose(2.0));
+
+    assert(context.isZero(context.zero));
+    assert(!context.isZero(context.one));
+    assert(context.isOne(context.one));
+    assert(!context.isOne(context.zero));
+    assert(context.isTwo(context.two));
+    assert(!context.isTwo(context.one));
 }
 
 nothrow pure unittest
