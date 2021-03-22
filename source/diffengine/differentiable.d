@@ -28,7 +28,7 @@ interface Differentiable(R)
     Returns;
         function result.
     */
-    R opCall() const nothrow pure return scope;
+    R opCall() const @nogc nothrow pure return scope;
 
     /**
     Differentiate function.

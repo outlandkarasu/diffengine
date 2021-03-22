@@ -27,7 +27,7 @@ final class Division(R) : Differentiable!R
         this.rhs_ = rhs;
     }
 
-    override R opCall() const nothrow pure return scope
+    override R opCall() const @nogc nothrow pure return scope
     {
         return lhs_() / rhs_();
     }

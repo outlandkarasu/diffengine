@@ -27,7 +27,7 @@ private final class DifferentiableAddSub(R, string op) : Differentiable!R
         this.rhs_ = rhs;
     }
 
-    override R opCall() const nothrow pure return scope
+    override R opCall() const @nogc nothrow pure return scope
     {
         return mixin("lhs_() " ~ op ~ " rhs_()");
     }

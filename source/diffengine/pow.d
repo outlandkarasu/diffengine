@@ -30,7 +30,7 @@ private final class Square(R) : Differentiable!R
         this.x_ = x;
     }
 
-    override R opCall() const nothrow pure return scope
+    override R opCall() const @nogc nothrow pure return scope
     {
         auto x = x_();
         return x * x;
@@ -103,7 +103,7 @@ final class Power(R) : Differentiable!R
         this.rhs_ = rhs;
     }
 
-    override R opCall() const nothrow pure return scope
+    override R opCall() const @nogc nothrow pure return scope
     {
         return mathPow(lhs_(), rhs_());
     }

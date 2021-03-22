@@ -28,7 +28,7 @@ private final class Exp(R) : Differentiable!R
         this.x_ = x;
     }
 
-    override R opCall() const nothrow pure return scope
+    override R opCall() const @nogc nothrow pure return scope
     {
         return mathExp(x_());
     }
