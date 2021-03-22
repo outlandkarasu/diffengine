@@ -37,7 +37,7 @@ private final class Exp(R) : Differentiable!R
         in (false)
     {
         auto xDiff = context.diff(x_);
-        return mul(this, xDiff);
+        return context.mul(this, xDiff);
     }
 
 private:

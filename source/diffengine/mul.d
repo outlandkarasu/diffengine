@@ -12,7 +12,6 @@ import diffengine.add_sub : add;
 
 /**
 Differentiable multiply class.
-
 Params:
     R = result type.
 */
@@ -35,9 +34,9 @@ final class Multiply(R) : Differentiable!R
     {
         auto lhsDiff = context.diff(lhs_);
         auto rhsDiff = context.diff(rhs_);
-        auto ldy = mul(lhsDiff, rhs_);
-        auto rdy = mul(lhs_, rhsDiff);
-        return ldy.add(rdy);
+        auto ldy = context.mul(lhsDiff, rhs_);
+        auto rdy = context.mul(lhs_, rhsDiff);
+        return context.add(ldy, rdy);
     }
 
 private:
@@ -66,5 +65,39 @@ nothrow pure unittest
 
     auto p2d = m.differentiate(p2.diffContext);
     assert(p2d().isClose(2.0));
+}
+
+const(Differentiable!R) mul(R)(scope DiffContext!R context, const(Differentiable!R) lhs, const(Differentiable!R) rhs) nothrow pure
+{
+    if (context.isZero(lhs) || context.isZero(rhs))
+    {
+        return context.zero;
+    }
+    else if (context.isOne(lhs))
+    {
+        return rhs;
+    }
+    else if (context.isOne(rhs))
+    {
+        return lhs;
+    }
+
+    return mul(lhs, rhs);
+}
+
+nothrow pure unittest
+{
+    import std.math : isClose;
+    import diffengine.differentiable : diffContext;
+    import diffengine.parameter : param;
+
+    auto p1 = param(2.0);
+    auto p2 = param(3.0);
+    auto context = diffContext(p1);
+    assert(context.mul(p1, p2)().isClose(6.0));
+    assert(context.mul(p1, context.zero) is context.zero);
+    assert(context.mul(p1, context.one) is p1);
+    assert(context.mul(context.zero, p2) is context.zero);
+    assert(context.mul(context.one, p2) is p2);
 }
 

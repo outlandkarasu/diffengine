@@ -37,10 +37,10 @@ final class Division(R) : Differentiable!R
     {
         auto lhsDiff = context.diff(lhs_);
         auto rhsDiff = context.diff(rhs_);
-        auto ldy = mul(lhsDiff, rhs_);
-        auto rdy = mul(lhs_, rhsDiff);
-        auto numerator = ldy.sub(rdy);
-        return numerator.div(rhs_.square);
+        auto ldy = context.mul(lhsDiff, rhs_);
+        auto rdy = context.mul(lhs_, rhsDiff);
+        auto numerator = context.sub(ldy, rdy);
+        return context.div(numerator, rhs_.square);
     }
 
 private:
@@ -69,5 +69,28 @@ pure nothrow unittest
 
     auto p2d = m.differentiate(p2.diffContext);
     assert(p2d().isClose(-2.0/9.0));
+}
+
+const(Differentiable!R) div(R)(scope DiffContext!R context, const(Differentiable!R) lhs, const(Differentiable!R) rhs) nothrow pure
+{
+    if (context.isOne(rhs))
+    {
+        return lhs;
+    }
+
+    return new const(Division!R)(lhs, rhs);
+}
+
+pure nothrow unittest
+{
+    import std.math : isClose;
+    import diffengine.differentiable : diffContext;
+    import diffengine.parameter : param;
+
+    auto p1 = param(2.0);
+    auto p2 = param(3.0);
+    auto context = diffContext(p1);
+    assert(context.div(p1, p2)().isClose(2.0/3.0));
+    assert(context.div(p1, context.one) is p1);
 }
 
