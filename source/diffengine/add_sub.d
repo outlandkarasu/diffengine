@@ -5,7 +5,8 @@ module diffengine.add_sub;
 
 import diffengine.differentiable :
     Differentiable,
-    DiffContext;
+    DiffContext,
+    EvalContext;
 
 @safe:
 
@@ -32,6 +33,11 @@ private final class DifferentiableAddSub(R, string op) : Differentiable!R
         return mixin("lhs_() " ~ op ~ " rhs_()");
     }
 
+    override R evaluate(scope EvalContext!R context) const nothrow pure
+    {
+        return mixin("lhs_.evaluate(context) " ~ op ~ " rhs_.evaluate(context)");
+    }
+
     const(Differentiable!R) differentiate(scope DiffContext!R context) const nothrow pure return scope
         in (false)
     {
@@ -47,14 +53,18 @@ private:
 
 alias Addition(R) = const(DifferentiableAddSub!(R, "+"));
 
-const(Addition!R) add(R)(const(Differentiable!R) lhs, const(Differentiable!R) rhs) nothrow pure
+const(Addition!R) add(R)(
+    const(Differentiable!R) lhs,
+    const(Differentiable!R) rhs) nothrow pure
 {
     return new Addition!R(lhs, rhs);
 }
 
 alias Subtraction(R) = const(DifferentiableAddSub!(R, "-"));
 
-const(Subtraction!R) sub(R)(const(Differentiable!R) lhs, const(Differentiable!R) rhs) nothrow pure
+const(Subtraction!R) sub(R)(
+    const(Differentiable!R) lhs,
+    const(Differentiable!R) rhs) nothrow pure
 {
     return new Subtraction!R(lhs, rhs);
 }
@@ -82,7 +92,44 @@ nothrow pure unittest
     assert(md().isClose(-1.0));
 }
 
-const(Differentiable!R) add(R)(scope DiffContext!R context, const(Differentiable!R) lhs, const(Differentiable!R) rhs) nothrow pure
+nothrow pure unittest
+{
+    import std.math : isClose;
+    import diffengine.differentiable : evalContext;
+    import diffengine.constant : constant;
+    import diffengine.parameter : param;
+
+    auto c1 = constant(1.0);
+    auto c2 = param(2.0);
+    auto context = evalContext!double();
+    auto p = c1.add(c2);
+    assert(context.evaluate(p).isClose(3.0));
+    assert(context.cacheHitCount == 0);
+    assert(context.evaluate(p).isClose(3.0));
+    assert(context.cacheHitCount == 1);
+}
+
+nothrow pure unittest
+{
+    import std.math : isClose;
+    import diffengine.differentiable : evalContext;
+    import diffengine.constant : constant;
+    import diffengine.parameter : param;
+
+    auto c1 = constant(1.0);
+    auto c2 = param(2.0);
+    auto context = evalContext!double();
+    auto m = c1.sub(c2);
+    assert(context.evaluate(m).isClose(-1.0));
+    assert(context.cacheHitCount == 0);
+    assert(context.evaluate(m).isClose(-1.0));
+    assert(context.cacheHitCount == 1);
+}
+
+const(Differentiable!R) add(R)(
+    scope DiffContext!R context,
+    const(Differentiable!R) lhs,
+    const(Differentiable!R) rhs) nothrow pure
 {
     if (context.isZero(lhs))
     {
@@ -111,7 +158,10 @@ nothrow pure unittest
     assert(context.add(c1, context.zero) is c1);
 }
 
-const(Differentiable!R) sub(R)(scope DiffContext!R context, const(Differentiable!R) lhs, const(Differentiable!R) rhs) nothrow pure
+const(Differentiable!R) sub(R)(
+    scope DiffContext!R context,
+    const(Differentiable!R) lhs,
+    const(Differentiable!R) rhs) nothrow pure
 {
     if (context.isZero(rhs))
     {

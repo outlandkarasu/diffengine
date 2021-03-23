@@ -5,7 +5,8 @@ module diffengine.div;
 
 import diffengine.differentiable :
     Differentiable,
-    DiffContext;
+    DiffContext,
+    EvalContext;
 import diffengine.add_sub : sub;
 import diffengine.mul : mul;
 import diffengine.pow : square;
@@ -30,6 +31,11 @@ final class Division(R) : Differentiable!R
     override R opCall() const @nogc nothrow pure return scope
     {
         return lhs_() / rhs_();
+    }
+
+    override R evaluate(scope EvalContext!R context) const nothrow pure
+    {
+        return lhs_.evaluate(context) / rhs_.evaluate(context);
     }
 
     const(Differentiable!R) differentiate(scope DiffContext!R context) const nothrow pure return scope
@@ -69,6 +75,27 @@ pure nothrow unittest
 
     auto p2d = m.differentiate(p2.diffContext);
     assert(p2d().isClose(-2.0/9.0));
+}
+
+pure nothrow unittest
+{
+    import std.math : isClose;
+    import diffengine.differentiable : evalContext;
+    import diffengine.parameter : param;
+
+    auto p1 = param(2.0);
+    auto p2 = param(3.0);
+    auto m = p1.div(p2);
+    auto context = evalContext!double();
+    assert(context.evaluate(m).isClose(2.0/3.0));
+    assert(context.callCount == 1);
+    assert(context.evaluateCount == 1);
+    assert(context.cacheHitCount == 0);
+
+    assert(context.evaluate(m).isClose(2.0/3.0));
+    assert(context.callCount == 2);
+    assert(context.evaluateCount == 1);
+    assert(context.cacheHitCount == 1);
 }
 
 const(Differentiable!R) div(R)(scope DiffContext!R context, const(Differentiable!R) lhs, const(Differentiable!R) rhs) nothrow pure

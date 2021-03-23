@@ -6,7 +6,8 @@ module diffengine.constant;
 import diffengine.differentiable :
     Differentiable,
     DiffContext,
-    diffContext;
+    diffContext,
+    EvalContext;
 
 @safe:
 
@@ -22,6 +23,12 @@ final class StaticConstant(R, R value) : Differentiable!R
     private this() immutable @nogc nothrow pure return scope {}
 
     override R opCall() const nothrow pure return scope
+    {
+        return R(value);
+    }
+
+    override R evaluate(scope EvalContext!R context) const nothrow pure
+        in (false)
     {
         return R(value);
     }
@@ -122,6 +129,12 @@ Params:
 final class Constant(R) : Differentiable!R
 {
     override R opCall() const nothrow pure return scope
+    {
+        return value_;
+    }
+
+    override R evaluate(scope EvalContext!R context) const nothrow pure
+        in (false)
     {
         return value_;
     }

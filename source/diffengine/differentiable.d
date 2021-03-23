@@ -31,6 +31,16 @@ interface Differentiable(R)
     R opCall() const @nogc nothrow pure return scope;
 
     /**
+    Evaluate function.
+
+    Params:
+        context = evaluate context.
+    Returns;
+        function result.
+    */
+    R evaluate(scope EvalContext!R context) const nothrow pure;
+
+    /**
     Differentiate function.
 
     Params:
@@ -250,7 +260,6 @@ nothrow pure unittest
     assert(context.diff(f) is df);
 }
 
-
 nothrow pure unittest
 {
     import std.math : isClose;
@@ -289,5 +298,66 @@ nothrow pure unittest
     assert((1.0 * p1)().isClose(2.0));
     assert((1.0 / p1)().isClose(0.5));
     assert((1.0 ^^ p1)().isClose(1.0));
+}
+
+/**
+Evaluate context.
+
+Params:
+    R = result type.
+*/
+final class EvalContext(R)
+{
+    R evaluate(const(Differentiable!R) f) nothrow pure @safe scope
+        in (f)
+    {
+        ++callCount_;
+        return assumeWontThrow(memo_.require(
+            f, { ++evaluateCount_; return f.evaluate(this); }()));
+    }
+
+    @property @nogc nothrow pure @safe const scope
+    {
+        size_t callCount() { return callCount_; }
+        size_t evaluateCount() { return evaluateCount_; }
+        size_t cacheHitCount() { return callCount_ - evaluateCount_; }
+    }
+
+private:
+    R[const(Differentiable!R)] memo_;
+    size_t callCount_;
+    size_t evaluateCount_;
+}
+
+EvalContext!R evalContext(R)() nothrow pure @safe
+    out(r; r)
+{
+    return new EvalContext!R();
+}
+
+unittest
+{
+    import std.conv : to;
+    import std.math : isClose;
+    import diffengine.parameter : param;
+
+    auto p1 = param(1.0);
+    auto p2 = param(2.0);
+    auto add = p1 + p2;
+    auto context = evalContext!double();
+    assert(context.evaluate(add).isClose(3.0));
+    assert(context.callCount == 1);
+    assert(context.evaluateCount == 1);
+    assert(context.cacheHitCount == 0);
+
+    assert(context.evaluate(add).isClose(3.0));
+    assert(context.callCount == 2);
+    assert(context.evaluateCount == 1);
+    assert(context.cacheHitCount == 1);
+
+    assert(context.evaluate(add).isClose(3.0));
+    assert(context.callCount == 3);
+    assert(context.evaluateCount == 1);
+    assert(context.cacheHitCount == 2);
 }
 

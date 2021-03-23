@@ -8,7 +8,8 @@ import std.traits : isFloatingPoint, isNumeric;
 
 import diffengine.differentiable :
     Differentiable,
-    DiffContext;
+    DiffContext,
+    EvalContext;
 import diffengine.mul : mul;
 import diffengine.div : div;
 
@@ -32,6 +33,11 @@ private final class Log(R) : Differentiable!R
     override R opCall() const @nogc nothrow pure return scope
     {
         return mathLog(x_());
+    }
+
+    override R evaluate(scope EvalContext!R context) const nothrow pure
+    {
+        return mathLog(x_.evaluate(context));
     }
 
     const(Differentiable!R) differentiate(scope DiffContext!R context) const nothrow pure return scope
@@ -70,6 +76,27 @@ nothrow pure unittest
     auto plog2x = log(p.square);
     auto plog2xd = plog2x.differentiate(context);
     assert(plog2xd().isClose(2.0/3.0));
+}
+
+nothrow pure unittest
+{
+    import std.math : isClose;
+    import diffengine.differentiable : evalContext;
+    import diffengine.parameter : param;
+    import diffengine.pow : square;
+
+    auto p = param(3.0);
+    auto plog = p.log();
+    auto context = evalContext!double();
+    assert(context.evaluate(plog).isClose(mathLog(3.0)));
+    assert(context.callCount == 1);
+    assert(context.evaluateCount == 1);
+    assert(context.cacheHitCount == 0);
+
+    assert(context.evaluate(plog).isClose(mathLog(3.0)));
+    assert(context.callCount == 2);
+    assert(context.evaluateCount == 1);
+    assert(context.cacheHitCount == 1);
 }
 
 /**

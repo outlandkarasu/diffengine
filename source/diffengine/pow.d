@@ -8,7 +8,8 @@ import std.traits : isNumeric;
 
 import diffengine.differentiable :
     Differentiable,
-    DiffContext;
+    DiffContext,
+    EvalContext;
 import diffengine.mul : mul;
 import diffengine.div : div;
 import diffengine.add_sub : add;
@@ -33,6 +34,12 @@ private final class Square(R) : Differentiable!R
     override R opCall() const @nogc nothrow pure return scope
     {
         auto x = x_();
+        return x * x;
+    }
+
+    override R evaluate(scope EvalContext!R context) const nothrow pure
+    {
+        auto x = x_.evaluate(context);
         return x * x;
     }
 
@@ -66,6 +73,26 @@ nothrow pure unittest
 
     auto p2dd = p2d.differentiate(p.diffContext);
     assert(p2dd().isClose(2.0));
+}
+
+nothrow pure unittest
+{
+    import std.math : isClose;
+    import diffengine.differentiable : evalContext;
+    import diffengine.parameter : param;
+
+    auto p = param(3.0);
+    auto p2 = p.square();
+    auto context = evalContext!double();
+    assert(context.evaluate(p2).isClose(9.0));
+    assert(context.callCount == 1);
+    assert(context.evaluateCount == 1);
+    assert(context.cacheHitCount == 0);
+
+    assert(context.evaluate(p2).isClose(9.0));
+    assert(context.callCount == 2);
+    assert(context.evaluateCount == 1);
+    assert(context.cacheHitCount == 1);
 }
 
 /**
@@ -108,6 +135,11 @@ final class Power(R) : Differentiable!R
         return mathPow(lhs_(), rhs_());
     }
 
+    override R evaluate(scope EvalContext!R context) const nothrow pure
+    {
+        return mathPow(lhs_.evaluate(context), rhs_.evaluate(context));
+    }
+
     const(Differentiable!R) differentiate(scope DiffContext!R context) const nothrow pure return scope
         in (false)
     {
@@ -144,6 +176,27 @@ nothrow pure unittest
 
     auto p2d = m.differentiate(p2.diffContext);
     assert(p2d().isClose(8.0 * mathLog(2.0)));
+}
+
+nothrow pure unittest
+{
+    import std.math : isClose;
+    import diffengine.differentiable : evalContext;
+    import diffengine.parameter : param;
+
+    auto p1 = param(2.0);
+    auto p2 = param(3.0);
+    auto m = p1.pow(p2);
+    auto context = evalContext!double();
+    assert(context.evaluate(m).isClose(8.0));
+    assert(context.callCount == 1);
+    assert(context.evaluateCount == 1);
+    assert(context.cacheHitCount == 0);
+
+    assert(context.evaluate(m).isClose(8.0));
+    assert(context.callCount == 2);
+    assert(context.evaluateCount == 1);
+    assert(context.cacheHitCount == 1);
 }
 
 /**
