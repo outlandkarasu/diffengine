@@ -5,7 +5,8 @@ module diffengine.parameter;
 
 import diffengine.differentiable :
     Differentiable,
-    DiffContext;
+    DiffContext,
+    EvalContext;
 
 @safe:
 
@@ -23,6 +24,12 @@ final class Parameter(R) : Differentiable!R
     }
 
     override R opCall() const nothrow pure return scope
+    {
+        return value_;
+    }
+
+    override R evaluate(scope EvalContext!R context) const nothrow pure
+        in (false)
     {
         return value_;
     }

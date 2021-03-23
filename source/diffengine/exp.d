@@ -8,7 +8,8 @@ import std.traits : isFloatingPoint, isNumeric;
 
 import diffengine.differentiable :
     Differentiable,
-    DiffContext;
+    DiffContext,
+    EvalContext;
 import diffengine.mul : mul;
 
 @safe:
@@ -28,9 +29,14 @@ private final class Exp(R) : Differentiable!R
         this.x_ = x;
     }
 
-    override R opCall() const nothrow pure return scope
+    override R opCall() const @nogc nothrow pure return scope
     {
         return mathExp(x_());
+    }
+
+    override R evaluate(scope EvalContext!R context) const nothrow pure
+    {
+        return mathExp(x_.evaluate(context));
     }
 
     const(Differentiable!R) differentiate(scope DiffContext!R context) const nothrow pure return scope
@@ -68,6 +74,27 @@ nothrow pure unittest
     auto pexpx2 = exp(p.square);
     auto pexpx2d = pexpx2.differentiate(context);
     assert(pexpx2d().isClose(mathExp(9.0) * 6.0));
+}
+
+nothrow pure unittest
+{
+    import std.math : isClose;
+    import diffengine.differentiable : evalContext;
+    import diffengine.parameter : param;
+    import diffengine.pow : square;
+
+    auto p = param(3.0);
+    auto pexp = p.exp();
+    auto context = evalContext!double();
+    assert(context.evaluate(pexp).isClose(mathExp(3.0)));
+    assert(context.callCount == 1);
+    assert(context.evaluateCount == 1);
+    assert(context.cacheHitCount == 0);
+
+    assert(context.evaluate(pexp).isClose(mathExp(3.0)));
+    assert(context.callCount == 2);
+    assert(context.evaluateCount == 1);
+    assert(context.cacheHitCount == 1);
 }
 
 /**
