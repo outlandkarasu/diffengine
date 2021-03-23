@@ -35,7 +35,7 @@ private final class DifferentiableAddSub(R, string op) : Differentiable!R
 
     override R evaluate(scope EvalContext!R context) const nothrow pure
     {
-        return mixin("lhs_.evaluate(context) " ~ op ~ " rhs_.evaluate(context)");
+        return mixin("context.evaluate(lhs_) " ~ op ~ " context.evaluate(rhs_)");
     }
 
     const(Differentiable!R) differentiate(scope DiffContext!R context) const nothrow pure return scope

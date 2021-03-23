@@ -37,7 +37,7 @@ private final class Log(R) : Differentiable!R
 
     override R evaluate(scope EvalContext!R context) const nothrow pure
     {
-        return mathLog(x_.evaluate(context));
+        return mathLog(context.evaluate(x_));
     }
 
     const(Differentiable!R) differentiate(scope DiffContext!R context) const nothrow pure return scope
@@ -89,13 +89,13 @@ nothrow pure unittest
     auto plog = p.log();
     auto context = evalContext!double();
     assert(context.evaluate(plog).isClose(mathLog(3.0)));
-    assert(context.callCount == 1);
-    assert(context.evaluateCount == 1);
+    assert(context.callCount == 2);
+    assert(context.evaluateCount == 2);
     assert(context.cacheHitCount == 0);
 
     assert(context.evaluate(plog).isClose(mathLog(3.0)));
-    assert(context.callCount == 2);
-    assert(context.evaluateCount == 1);
+    assert(context.callCount == 3);
+    assert(context.evaluateCount == 2);
     assert(context.cacheHitCount == 1);
 }
 
