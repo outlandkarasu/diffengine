@@ -32,7 +32,7 @@ final class Multiply(R) : Differentiable!R
 
     override R evaluate(scope EvalContext!R context) const nothrow pure
     {
-        return lhs_.evaluate(context) * rhs_.evaluate(context);
+        return context.evaluate(lhs_) * context.evaluate(rhs_);
     }
 
     const(Differentiable!R) differentiate(scope DiffContext!R context) const nothrow pure return scope
@@ -84,13 +84,13 @@ nothrow pure unittest
     auto m = p1.mul(p2);
     auto context = evalContext!double();
     assert(context.evaluate(m).isClose(6.0));
-    assert(context.callCount == 1);
-    assert(context.evaluateCount == 1);
+    assert(context.callCount == 3);
+    assert(context.evaluateCount == 3);
     assert(context.cacheHitCount == 0);
 
     assert(context.evaluate(m).isClose(6.0));
-    assert(context.callCount == 2);
-    assert(context.evaluateCount == 1);
+    assert(context.callCount == 4);
+    assert(context.evaluateCount == 3);
     assert(context.cacheHitCount == 1);
 }
 

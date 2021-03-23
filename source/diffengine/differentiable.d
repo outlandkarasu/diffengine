@@ -346,18 +346,18 @@ unittest
     auto add = p1 + p2;
     auto context = evalContext!double();
     assert(context.evaluate(add).isClose(3.0));
-    assert(context.callCount == 1);
-    assert(context.evaluateCount == 1);
+    assert(context.callCount == 3);
+    assert(context.evaluateCount == 3);
     assert(context.cacheHitCount == 0);
 
     assert(context.evaluate(add).isClose(3.0));
-    assert(context.callCount == 2);
-    assert(context.evaluateCount == 1);
+    assert(context.callCount == 4);
+    assert(context.evaluateCount == 3);
     assert(context.cacheHitCount == 1);
 
     assert(context.evaluate(add).isClose(3.0));
-    assert(context.callCount == 3);
-    assert(context.evaluateCount == 1);
+    assert(context.callCount == 5);
+    assert(context.evaluateCount == 3);
     assert(context.cacheHitCount == 2);
 }
 

@@ -39,7 +39,7 @@ private final class Square(R) : Differentiable!R
 
     override R evaluate(scope EvalContext!R context) const nothrow pure
     {
-        auto x = x_.evaluate(context);
+        auto x = context.evaluate(x_);
         return x * x;
     }
 
@@ -85,13 +85,13 @@ nothrow pure unittest
     auto p2 = p.square();
     auto context = evalContext!double();
     assert(context.evaluate(p2).isClose(9.0));
-    assert(context.callCount == 1);
-    assert(context.evaluateCount == 1);
+    assert(context.callCount == 2);
+    assert(context.evaluateCount == 2);
     assert(context.cacheHitCount == 0);
 
     assert(context.evaluate(p2).isClose(9.0));
-    assert(context.callCount == 2);
-    assert(context.evaluateCount == 1);
+    assert(context.callCount == 3);
+    assert(context.evaluateCount == 2);
     assert(context.cacheHitCount == 1);
 }
 
@@ -137,7 +137,7 @@ final class Power(R) : Differentiable!R
 
     override R evaluate(scope EvalContext!R context) const nothrow pure
     {
-        return mathPow(lhs_.evaluate(context), rhs_.evaluate(context));
+        return mathPow(context.evaluate(lhs_), context.evaluate(rhs_));
     }
 
     const(Differentiable!R) differentiate(scope DiffContext!R context) const nothrow pure return scope
@@ -189,13 +189,13 @@ nothrow pure unittest
     auto m = p1.pow(p2);
     auto context = evalContext!double();
     assert(context.evaluate(m).isClose(8.0));
-    assert(context.callCount == 1);
-    assert(context.evaluateCount == 1);
+    assert(context.callCount == 3);
+    assert(context.evaluateCount == 3);
     assert(context.cacheHitCount == 0);
 
     assert(context.evaluate(m).isClose(8.0));
-    assert(context.callCount == 2);
-    assert(context.evaluateCount == 1);
+    assert(context.callCount == 4);
+    assert(context.evaluateCount == 3);
     assert(context.cacheHitCount == 1);
 }
 

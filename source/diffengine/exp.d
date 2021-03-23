@@ -36,7 +36,7 @@ private final class Exp(R) : Differentiable!R
 
     override R evaluate(scope EvalContext!R context) const nothrow pure
     {
-        return mathExp(x_.evaluate(context));
+        return mathExp(context.evaluate(x_));
     }
 
     const(Differentiable!R) differentiate(scope DiffContext!R context) const nothrow pure return scope
@@ -87,13 +87,13 @@ nothrow pure unittest
     auto pexp = p.exp();
     auto context = evalContext!double();
     assert(context.evaluate(pexp).isClose(mathExp(3.0)));
-    assert(context.callCount == 1);
-    assert(context.evaluateCount == 1);
+    assert(context.callCount == 2);
+    assert(context.evaluateCount == 2);
     assert(context.cacheHitCount == 0);
 
     assert(context.evaluate(pexp).isClose(mathExp(3.0)));
-    assert(context.callCount == 2);
-    assert(context.evaluateCount == 1);
+    assert(context.callCount == 3);
+    assert(context.evaluateCount == 2);
     assert(context.cacheHitCount == 1);
 }
 
