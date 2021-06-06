@@ -41,6 +41,17 @@ final class Parameter(R) : Differentiable!R
     }
 
     /**
+    Get current value.
+
+    Returns:
+        Current value.
+    */
+    @property R value() const @nogc nothrow pure scope
+    {
+        return this.value_;
+    }
+
+    /**
     Bind new value.
 
     Params:
@@ -68,6 +79,7 @@ nothrow pure unittest
 
     auto p = param(1.0);
     assert(p().isClose(1.0));
+    assert(p.value.isClose(1.0));
 
     auto context = diffContext(p);
     auto d = p.differentiate(context);
@@ -78,6 +90,6 @@ nothrow pure unittest
     assert(d2 is context.zero);
 
     p.bind(100.0);
-    assert(p().isClose(100.0));
+    assert(p.value.isClose(100.0));
 }
 
