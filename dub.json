@@ -2,9 +2,15 @@
 	"authors": [
 		"outland.karasu"
 	],
+	"dependencies": {
+		"karasux": "~>0.0.8"
+	},
 	"description": "Simple automatic differentiation library for D language.",
+	"dflags": [
+		"-preview=dip25",
+		"-preview=dip1000",
+		"-preview=dip1008"
+	],
 	"license": "BSL-1.0",
-	"dflags": ["-preview=dip25", "-preview=dip1000", "-preview=dip1008"],
-	"name": "diffengine",
-	"target": "sourceLibrary"
+	"name": "diffengine"
 }
