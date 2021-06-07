@@ -12,4 +12,5 @@ public import diffengine.div;
 public import diffengine.pow;
 public import diffengine.exp;
 public import diffengine.log;
+public import diffengine.newton;
 
