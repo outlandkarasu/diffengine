@@ -13,3 +13,4 @@ diffengine-test-*
 *.o
 *.obj
 *.lst
+libdiffengine.a
