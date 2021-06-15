@@ -9,7 +9,7 @@ import diffengine.differentiable :
     EvalContext;
 import diffengine.parameter : Parameter;
 
-import karasux.linear_algebra : Matrix, inverseByLUDecomposition;
+import karasux.linear_algebra : Matrix, luDecomposition;
 
 @safe:
 
@@ -66,7 +66,8 @@ final class NewtonMethod(R, size_t dimensions)
         }
 
         typeof(jacobian) inverseJacobian;
-        jacobian.inverseByLUDecomposition(inverseJacobian);
+        auto lu = luDecomposition(jacobian);
+        lu.createInverse(inverseJacobian);
 
         typeof(currentResult) offset;
         offset.mul(inverseJacobian, currentResult);

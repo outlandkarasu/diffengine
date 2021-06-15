@@ -3,7 +3,7 @@
 		"outland.karasu"
 	],
 	"dependencies": {
-		"karasux": "~>0.0.8"
+		"karasux": "~>0.0.9"
 	},
 	"description": "Simple automatic differentiation library for D language.",
 	"dflags": [
