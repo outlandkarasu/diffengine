@@ -9,7 +9,7 @@ import diffengine.differentiable :
     EvalContext;
 import diffengine.parameter : Parameter;
 
-import karasux.linear_algebra : Matrix, luDecomposition;
+import karasux.linear_algebra : Matrix, luDecomposition, Vector;
 
 @safe:
 
@@ -53,10 +53,10 @@ final class NewtonMethod(R, size_t dimensions)
     {
         scope context = new EvalContext!R();
 
-        Matrix!(dimensions, 1, R) currentResult;
+        Vector!(dimensions, R) currentResult;
         foreach (i, f; functions_)
         {
-            currentResult[i, 0] = context.evaluate(f);
+            currentResult[i] = context.evaluate(f);
         }
 
         Matrix!(dimensions, dimensions, R) jacobian;
@@ -65,17 +65,13 @@ final class NewtonMethod(R, size_t dimensions)
             jacobian[i / dimensions, i % dimensions] = context.evaluate(f);
         }
 
-        typeof(jacobian) inverseJacobian;
-        auto lu = luDecomposition(jacobian);
-        lu.createInverse(inverseJacobian);
-
-        typeof(currentResult) offset;
-        offset.mul(inverseJacobian, currentResult);
+        Vector!(dimensions, R) offset;
+        luDecomposition(jacobian).solve(currentResult, offset);
 
         foreach (i; 0 .. dimensions)
         {
             auto p = parameters_[i];
-            p.bind(p.value - offset[i, 0]);
+            p.bind(p.value - offset[i]);
         }
     }
 
